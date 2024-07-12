@@ -29,7 +29,7 @@ oc status
 
 crétion d'un projet ? `oc new-project tp`
 
-Commencez par crée un simple pod NGINX, et vérifiez que vous pouvez bien l'atteindre depuis un autre pod :
+Commencez par créer un simple pod NGINX, et vérifiez que vous pouvez bien l'atteindre depuis un autre pod :
 
 ```bash
 kubectl run --image nginxinc/nginx-unprivileged:latest nginx-pod
