@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  creationTimestamp: null
+  labels:
+    app: mariadb
+  name: mariadb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: mariadb
+    spec:
+      containers:
+        - image: quay.io/sclorg/mariadb-1011-c9s:c9s
+          name: mariadb-1011-c9s
+          env:
+            - name: MYSQL_RANDOM_ROOT_PASSWORD
+              value: "1"
+            - name: MYSQL_DATABASE
+              value: grr
+            - name: MYSQL_USER
+              value: grr_user
+            - name: MYSQL_PASSWORD
+              value: grr_password
+            - name: MYSQL_CHARSET
+              value: utf8mb4
+          resources: {}
+  serviceName: mariadb

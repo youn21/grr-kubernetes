@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: grr
+  name: grr
+spec:
+  # replicas: 3
+  selector:
+    matchLabels:
+      app: grr
+  template:
+    metadata:
+      labels:
+        app: grr
+    spec:
+      initContainers:
+        - image: registry.plmlab.math.cnrs.fr/anf2024/grr:v4.3.5-docker-7
+          name: grr-migrate
+          env:
+            - name: DB_NAME
+              value: "grr"
+            - name: DB_USER
+              value: "grr_user"
+            - name: DB_PASSWORD
+              value: "grr_password"
+            - name: DB_HOST
+              value: "mariadb"
+          command: ["/var/www/docker/nginx-unit/migrations.sh"]
+      containers:
+        - image: registry.plmlab.math.cnrs.fr/anf2024/grr:v4.3.5-docker-7
+          name: grr
+          ports: 
+            - containerPort: 8080
+              name: web
+          env:
+            - name: DB_NAME
+              value: "grr"
+            - name: DB_USER
+              value: "grr_user"
+            - name: DB_PASSWORD
+              value: "grr_password"
+            - name: DB_HOST
+              value: "mariadb"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: grr
+  name: grr
+spec:
+  type: ClusterIP
+  selector:
+    app: grr
+  ports:
+  - name: web
+    protocol: TCP
+    port: 8080
