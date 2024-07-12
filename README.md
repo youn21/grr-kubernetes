@@ -88,7 +88,7 @@ L'erreur est `Back-off restarting failed container`, ce qui signifie que le pod 
 ```bash
 kubectl logs -l app=mariadb
 ```
-On voit qu'il manque des options (variables d'environnement) pour le que conteneur mariadb démarre correctement. Définissez les variables `MYSQL_ROOT_PASSWORD`, `MYSQL_USER`, `MYSQL_PASSWORD` et `MYSQL_DATABASE` dans le fichier `mariadb.yml` à l'aide du champ [env](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/). Profitez-en pour positionner `MYSQL_CHARSET` à la valeur `utf8mb4`.
+On voit qu'il manque des options (variables d'environnement) pour que le conteneur mariadb démarre correctement. Définissez les variables `MYSQL_ROOT_PASSWORD`, `MYSQL_USER`, `MYSQL_PASSWORD` et `MYSQL_DATABASE` dans le fichier `mariadb.yml` à l'aide du champ [env](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/). Profitez-en pour positionner `MYSQL_CHARSET` à la valeur `utf8mb4`.
 
 _Dans la suite, nous verrons comment éviter les secrets en clair... Si nous avons le temps ;)_
 
@@ -118,23 +118,23 @@ yq -i '.kind = "StatefulSet"' mariadb.yml
 yq -i 'del(.spec.strategy)' mariadb.yml 
 yq -i 'del(.status)' mariadb.yml
 # Ajout le champ serviceName
-yq -i '.spec.serviceName = "mariadb"' mariadb.ym
-# Vérification et deploiement
+yq -i '.spec.serviceName = "mariadb"' mariadb.yml
+# Vérification et déploiement
 less mariadb.yml
 kubectl apply -f mariadb.yml
 kubectl get pods -w
-# Suppresion du Déployment
+# Suppression du Déployment
 kubectl delete deployment  mariadb
 ```
 
-Créez maintenant le service Headless. Il n'y a pas de nouvelle IP et de Load-Balancing, mais un enregistrement DNS qui pointe directement sur l'IP du pod.
+Créez maintenant le service Headless. Il n'a pas d'IP et ne permet pas le Load-Balancing, mais un simple enregistrement DNS qui pointe directement sur l'IP du pod.
 
 ```bash
 kubectl create service clusterip --tcp=3306:3306 --clusterip='None' --dry-run=client -o yaml mariadb-service > mariadb-service.yml
 kubectl apply -f mariadb-service.yml
 ```
 
-Vous pouvez créer un pod temporaire afin de vérifier la résolution DNS, et le bon fonctionnement du serveur mariadb.
+Vous pouvez créer un pod temporaire afin de vérifier la résolution DNS et le bon fonctionnement du serveur mariadb.
 ```bash
 kubectl run --rm --restart=Never -i -t --image busybox test /bin/sh
 nc mariadb 3306
@@ -153,7 +153,7 @@ Pensez à :
 * Spécifier le port (8080);
 * Créer le service corespondant.
 
-Après avoir appliqué le manifeste, vérifez que vous accédez au conteneur avec `kubectl port-forward`.
+Après avoir appliqué le *manifest*, vérifez que vous accédez au conteneur avec `kubectl port-forward`.
 
 
 #### Migration de base ####
@@ -167,7 +167,7 @@ kubectl port-forward svc/grr 8080:8080
 
 #### Ingress ####
 
-Maintenant, nous allons exposer l'application au monde extérieur grâce à l'objet [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/).
+Vous pouvez maintenant exposer l'application au monde extérieur grâce à l'objet [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/).
 
 Nous pouvons alors définir l'objet Ingress qui va diriger le trafic vers le service grr :
 
@@ -200,7 +200,7 @@ kubectl apply -f ingress.yml
 Vous n'avez désormais plus besoin de *port-forward* (qui est un mécanisme prévu pr le debug) pour accéder à votre application :
 
 ```bash
-firefox http://$oc_user.apps.math.cnrs.fr
+firefox http://grr.$oc_user.apps.math.cnrs.fr
 ```
 
 ### 3. Aller plus loin ###
