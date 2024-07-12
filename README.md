@@ -65,6 +65,7 @@ Le second est contrôlé par un [StatefulSet](https://kubernetes.io/docs/concept
 
 #### Premier déploiement
 Commençons par déployer MariaDB avec un Deployment.
+
 _Astuce: pour générer les manifestes yaml facilement, vous pouvez utiliser la commande `kubectl` avec les options `--dry-run=client -o yaml`_ :
 ```bash
 kubectl create deployment mariadb --image quay.io/sclorg/mariadb-1011-c9s:c9s --dry-run=client -o yaml > mariadb.yml
