@@ -29,6 +29,9 @@ oc status
 
 crétion d'un projet ? `oc new-project tp`
 
+vérifiez que vous etes dans le bon projet :  `oc projec``
+
+
 Commencez par créer un simple pod NGINX, et vérifiez que vous pouvez bien l'atteindre depuis un autre pod :
 
 ```bash
