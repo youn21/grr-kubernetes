@@ -183,7 +183,7 @@ metadata:
 spec:
   ingressClassName: openshift-default
   rules:
-  - host: grr.$oc_user.apps.math.cnrs.fr
+  - host: grr-$oc_user.apps.math.cnrs.fr
     http:
       paths:
       - path: /
