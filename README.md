@@ -200,7 +200,7 @@ kubectl apply -f ingress.yml
 Vous n'avez désormais plus besoin de *port-forward* (qui est un mécanisme prévu pr le debug) pour accéder à votre application :
 
 ```bash
-firefox http://grr.$oc_user.apps.math.cnrs.fr
+firefox http://grr-$oc_user.apps.math.cnrs.fr
 ```
 
 ### 3. Aller plus loin ###
