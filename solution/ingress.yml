@@ -7,7 +7,7 @@ metadata:
 spec:
   ingressClassName: openshift-default
   rules:
-  - host: grr.rcailletaud.apps.math.cnrs.fr
+  - host: rcailletaud-grr.apps.math.cnrs.fr
     http:
       paths:
       - path: /
