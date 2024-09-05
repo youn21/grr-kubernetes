@@ -16,8 +16,15 @@ spec:
       labels:
         app: mariadb
     spec:
+      volumes:
+        - name: mariadb
+          persistentVolumeClaim:
+            claimName: mariadb
       containers:
-        - image: quay.io/sclorg/mariadb-1011-c9s:c9s
+        - volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: mariadb
+          image: quay.io/sclorg/mariadb-1011-c9s:c9s
           name: mariadb-1011-c9s
           env:
             - name: MYSQL_RANDOM_ROOT_PASSWORD
