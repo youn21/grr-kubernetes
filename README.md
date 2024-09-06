@@ -18,7 +18,10 @@ https://plmshift.math.cnrs.fr/command-line-tools
 ##### Connection
 
 ```
+# pour plmshift
 oc login --web https://api.math.cnrs.fr
+# pour plmvshift (attention à rajouter .apps)
+oc login --web https://api.apps.vodka.math.cnrs.fr
 ```
 
 ```
@@ -33,7 +36,7 @@ Commencez par créer un simple pod NGINX, et vérifiez que vous pouvez bien l'at
 
 ```bash
 kubectl run --image nginxinc/nginx-unprivileged:latest nginx-pod
-kubectl expose pod nginx-pod --port 80
+kubectl expose pod nginx-pod --port 8080
 kubectl get pods -o wide
 pod_ip=$(kubectl get pod nginx-pod -o jsonpath='{.status.podIP}')
 kubectl get service
@@ -86,7 +89,7 @@ kubectl describe pod -l app=mariadb
 ```
 L'erreur est `Back-off restarting failed container`, ce qui signifie que le pod redémarre sans cesse. Pour examiner plus précisément l'activité d'un conteneur du pod :
 ```bash
-kubectl logs -l app=mariadb
+kubectl logs -l app=mariadb --tail -1
 ```
 On voit qu'il manque des options (variables d'environnement) pour que le conteneur mariadb démarre correctement. Définissez les variables `MYSQL_ROOT_PASSWORD`, `MYSQL_USER`, `MYSQL_PASSWORD` et `MYSQL_DATABASE` dans le fichier `mariadb.yml` à l'aide du champ [env](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/). Profitez-en pour positionner `MYSQL_CHARSET` à la valeur `utf8mb4`.
 
@@ -115,7 +118,7 @@ Un peu de magie [yq](https://mikefarah.gitbook.io/yq) pour tranformer notre depl
 # Remplace le champ kind
 yq -i '.kind = "StatefulSet"' mariadb.yml
 # Supprime les champ strategy et status
-yq -i 'del(.spec.strategy)' mariadb.yml 
+yq -i 'del(.spec.strategy)' mariadb.yml
 yq -i 'del(.status)' mariadb.yml
 # Ajout le champ serviceName
 yq -i '.spec.serviceName = "mariadb"' mariadb.yml
@@ -130,7 +133,7 @@ kubectl delete deployment  mariadb
 Créez maintenant le service Headless. Il n'a pas d'IP et ne permet pas le Load-Balancing, mais un simple enregistrement DNS qui pointe directement sur l'IP du pod.
 
 ```bash
-kubectl create service clusterip --tcp=3306:3306 --clusterip='None' --dry-run=client -o yaml mariadb-service > mariadb-service.yml
+kubectl create service clusterip --tcp=3306:3306 --clusterip='None' --dry-run=client -o yaml mariadb > mariadb-service.yml
 kubectl apply -f mariadb-service.yml
 ```
 
@@ -148,7 +151,7 @@ Sur l'exemple des *manifests* mariadb, créez un *manifest* pour déployer les c
 _Vous pouvez déclarer plusieurs objets dans le même fichier en les séparant par la ligne `---`_
 
 Pensez à :
-* Specifier l'image correspondante: registry.plmlab.math.cnrs.fr/anf2024/grr:stable 
+* Specifier l'image correspondante: registry.plmlab.math.cnrs.fr/anf2024/grr:stable
 * Positionner les variables *DB_HOST*, *DB_NAME*, *DB_USER*, *DB_PASSWORD*;
 * Spécifier le port (8080);
 * Créer le service corespondant.
@@ -172,7 +175,8 @@ Vous pouvez maintenant exposer l'application au monde extérieur grâce à l'obj
 Nous pouvons alors définir l'objet Ingress qui va diriger le trafic vers le service grr :
 
 ```bash
-oc_user=$(oc auth whoami -o jsonpath='{.status.userInfo.username}')
+oc_user=$(kubectl auth whoami -o jsonpath='{.status.userInfo.username}')
+# ou alors oc whoami
 cat <<EOF > ingress.yml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
