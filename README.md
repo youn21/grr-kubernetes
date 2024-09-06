@@ -36,6 +36,7 @@ Commencez par créer un simple pod NGINX, et vérifiez que vous pouvez bien l'at
 
 ```bash
 kubectl run --image nginxinc/nginx-unprivileged:latest nginx-pod
+kubectl wait --for=condition=Ready pod/nginx-pod
 kubectl expose pod nginx-pod --port 8080
 kubectl get pods -o wide
 pod_ip=$(kubectl get pod nginx-pod -o jsonpath='{.status.podIP}')
@@ -48,7 +49,7 @@ Essayez de l'atteindre depuis un autre pod, via son IP, l'IP du service, puis le
 ```bash
 kubectl run --rm --restart=Never -it --image busybox test -- wget -O- $pod_ip:$port
 kubectl run --rm --restart=Never -it --image busybox test -- wget -O- $service_ip:$port
-kubectl run --rm --restart=Never -it --image busybox test -- wget -O- $pod_name:$port
+kubectl run --rm --restart=Never -it --image busybox test -- wget -O- nginx-pod:$port
 ```
 
 ### Nettoyage
@@ -187,7 +188,7 @@ metadata:
 spec:
   ingressClassName: openshift-default
   rules:
-  - host: grr-$oc_user.apps.math.cnrs.fr
+  - host: grr-$oc_user.apps.vodka.math.cnrs.fr
     http:
       paths:
       - path: /
@@ -204,7 +205,10 @@ kubectl apply -f ingress.yml
 Vous n'avez désormais plus besoin de *port-forward* (qui est un mécanisme prévu pr le debug) pour accéder à votre application :
 
 ```bash
+# plmshift
 firefox http://grr-$oc_user.apps.math.cnrs.fr
+# plmvshift
+firefox http://grr.$oc_user.apps.vodka.math.cnrs.fr
 ```
 
 ### 3. Aller plus loin ###
