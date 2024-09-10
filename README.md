@@ -257,4 +257,16 @@ kubectl exec -i -t mariadb-0 -- df -h /var/lib/mysql
 
 #### Helm ####
 
+Clonez le dépôt pour récupérer le "starter" template.
+
+```bash
+mkdir ~/.local/share/helm/starters/
+git  -C  ~/.local/share/helm/starters/ clone git@plmlab.math.cnrs.fr:anf2024/grr-kubernetes.git
+```
+Créez un nouveau chart à l'aide de ce template.
+
+```bash
+helm create grr -p grr-kubernetes/helm/starter/
+```
+
 #### GitOps ####
