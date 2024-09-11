@@ -257,16 +257,47 @@ kubectl exec -i -t mariadb-0 -- df -h /var/lib/mysql
 
 #### Helm ####
 
+[Helm](https://helm.sh) est un moteur de template spécialisé dans la gestion du déploiement d'applications sur Kubernetes. Les *charts* Helm permettent de décrire les applications et de les distribuer. À ce titre, il est parfois considéré comme le *package manager* de Kubernetes.
+
+L'objectif est ici d'écrire un *chart* Helm qui permettra de faciliter le déploiement de GRR. Nous nous baserons sur un squelette (*starter*) afin d'en faciliter l'écriture.
+
 Clonez le dépôt pour récupérer le "starter" template.
 
 ```bash
 mkdir ~/.local/share/helm/starters/
 git  -C  ~/.local/share/helm/starters/ clone git@plmlab.math.cnrs.fr:anf2024/grr-kubernetes.git
 ```
-Créez un nouveau chart à l'aide de ce template.
+Créez un nouveau chart à l'aide de ce template et inspectez-le :
 
 ```bash
 helm create grr -p grr-kubernetes/helm/starter/
+# fichier de description du chart
+less grr/Chart.yaml
+# valeurs par défaut
+less grr/values.yaml
+# fichiers de templates
+less grr/templates
 ```
+
+Vous pouvez générer les ressources avec la commande `helm template` :
+
+```bash
+# le premier argument est le nom de votre déploiement, le second le nom du *chart*. Ici on travaille avec un chart local
+helm template my-grr-deployment grr/
+```
+
+Mettez à jour la version de nginx et déployez :
+
+```bash
+yq -i '.appVersion="1.27"' grr/Chart.yaml
+helm install my-grr-deployment grr/
+```
+Par défaut, le *chart* ne déploie pas de règle d'ingress. 
+
+```bash
+helm upgrade my-grr-deployment grr/
+ --set ingress.enabled=true --set ingress.hosts[0].host=rcailletaud-grr-helm.apps.math.cnrs.fr --set ingress.className=openshift-default --set ingress.hosts[0].paths[0].path=/ --set ingress.hosts[0].paths[0].pathType=Prefix --set ingress.annotations."route\.openshift\.io/termination"=edge
+```
+
 
 #### GitOps ####
