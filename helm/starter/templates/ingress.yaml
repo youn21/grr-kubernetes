@@ -1,3 +1,4 @@
+{{- $fullName := include "<CHARTNAME>.fullname" . -}}
 {{- if .Values.ingress.enabled -}}
 kind: Ingress
 metadata:
@@ -20,9 +21,9 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ include "<CHARTNAME>.fullname" . }}
+                name: {{ $fullName }}
                 port:
-                  number: {{ .Values.service.port }}
+                  number: {{ $.Values.service.port }}
           {{- end }}
     {{- end }}
 {{- end }}
