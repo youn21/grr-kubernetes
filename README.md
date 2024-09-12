@@ -271,7 +271,7 @@ Créez un nouveau chart à l'aide de ce template et inspectez-le :
 
 ```bash
 helm create grr -p grr-kubernetes/helm/starter/
-# fichier de description du chart
+# fichier de description du chart, dont la version de l'application empaquetée
 less grr/Chart.yaml
 # valeurs par défaut
 less grr/values.yaml
@@ -279,25 +279,47 @@ less grr/values.yaml
 less grr/templates
 ```
 
-Vous pouvez générer les ressources avec la commande `helm template` :
+Inspectez la configuration du *chart* et générer les ressources.
 
 ```bash
-# le premier argument est le nom de votre déploiement, le second le nom du *chart*. Ici on travaille avec un chart local
+# Inspection des valeurs de configuration par défaut
+helm show values grr/
+# le premier argument est le nom de votre déploiement, le second le nom du chart. ici on travaille avec un chart local
 helm template my-grr-deployment grr/
 ```
-
 Mettez à jour la version de nginx et déployez :
 
 ```bash
-yq -i '.appVersion="1.27"' grr/Chart.yaml
+yq -i '.appversion="1.27"' grr/Chart.yaml
 helm install my-grr-deployment grr/
 ```
-Par défaut, le *chart* ne déploie pas de règle d'ingress. 
+Par défaut, le *chart* ne déploie pas de règle d'ingress. on peut en ajouter une en positionnant les variables à l'aide de l'option `--set`.
 
 ```bash
+oc_user=$(kubectl auth whoami -o jsonpath='{.status.userInfo.username}')
 helm upgrade my-grr-deployment grr/
- --set ingress.enabled=true --set ingress.hosts[0].host=rcailletaud-grr-helm.apps.math.cnrs.fr --set ingress.className=openshift-default --set ingress.hosts[0].paths[0].path=/ --set ingress.hosts[0].paths[0].pathType=Prefix --set ingress.annotations."route\.openshift\.io/termination"=edge
+ --set ingress.enabled=true --set ingress.hosts[0].host=$oc_user-grr-helm.apps.math.cnrs.fr --set ingress.classname=openshift-default --set ingress.hosts[0].paths[0].path=/ --set ingress.hosts[0].paths[0].pathtype=prefix --set ingress.annotations."route\.openshift\.io/termination"=edge
+curl https://$oc_user-grr-helm.apps.math.cnrs.fr
 ```
 
+Vous conviendrez aisément que passer tout les paramètres via la ligne de commande est pénible. Soyez déclaratifs !
 
-#### GitOps ####
+```
+oc_user=$(kubectl auth whoami -o jsonpath='{.status.userInfo.username}')
+cat <<EOF > values.yaml
+ingress:
+  enabled: true
+  className: "openshift-default"
+  annotations:
+    route.openshift.io/termination: edge
+  hosts:
+    - host: $oc_user-grr-helm.apps.math.cnrs.fr
+      paths:
+        - path: /
+          pathType: Prefix
+EOF
+```
+Vous pouvez désormais utiliser l'option `-f values.yaml`.
+
+
+#### gitops ####
