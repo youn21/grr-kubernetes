@@ -1,0 +1,10 @@
+ingress:
+  enabled: true
+  className: "openshift-default"
+  annotations:
+    route.openshift.io/termination: edge
+  hosts:
+    - host: rcailletaud-grr-helm.apps.math.cnrs.fr
+      paths:
+        - path: /
+          pathType: Prefix

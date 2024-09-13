@@ -308,7 +308,7 @@ helm upgrade my-grr-deployment grr/
 curl https://$oc_user-grr-helm.apps.math.cnrs.fr
 ```
 
-Vous conviendrez aisément que passer tout les paramètres via la ligne de commande est pénible. Soyez déclaratifs !
+Vous conviendrez aisément que passer tout les paramètres via la ligne de commande est pénible. Soyez déclaratifs !
 
 ```
 oc_user=$(kubectl auth whoami -o jsonpath='{.status.userInfo.username}')
@@ -327,5 +327,22 @@ EOF
 ```
 Vous pouvez désormais utiliser l'option `-f values.yaml`.
 
+Adaptez maintenant le *chart* Helm pour GRR.
+
+```
+yq -i '.appVersion="v4.3.5-docker-10"' grr/Chart.yaml
+yq -i '.image.repository="registry.plmlab.math.cnrs.fr/anf2024/grr"' grr/values.yaml
+helm upgrade my-grr-deployment grr/
+```
+
+Il vous faut à présent ajouter le service MariaDB. Pour cela, Helm offre un mécanisme de dépendances. Nous nous appuierons sur le [*chart* MariaDB offert par Bitnami](https://artifacthub.io/packages/helm/bitnami/mariadb).
+
+```
+# yq magie !
+yq -i '.dependencies |= ( [{"name": "mariadb", "version": "19.0.5", "repository": "https://charts.bitnami.com/bitnami"}] + .)' grr/Chart.yaml
+helm dependency update grr/
+# on vérifie que la dépendances a bien été téléchargée
+ls grr/charts/
+```
 
 #### gitops ####
