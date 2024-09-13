@@ -234,8 +234,8 @@ spec:
       storage: 1Gi
 EOF
 kubectl apply -f pvc.yml
-# On attend que le volume soit disponible
-kubectl wait --for=jsonpath='{.status.phase}'=Bound pvc/mariadb
+# En fonction de la configuration de la storageclasse, la PVC peut n'être créée
+# qu'au moment ou elle est attachée à un pod (VOLUMEBINDINGMODE WaitForFirstConsumer)
 kubectl describe pvc mariadb
 ```
 
@@ -249,6 +249,8 @@ yq -i '.spec.template.spec.containers[0] |= ( {"volumeMounts": [{"mountPath": "/
 git diff mariadb.yml
 kubectl apply -f mariadb.yml
 kubectl wait --for=condition=Ready pod/mariadb-0
+# On vérifie l'état de la PVC
+kubectl describe pvc mariadb
 # On vérifie le point de montage
 kubectl exec -i -t mariadb-0 -- df -h /var/lib/mysql
 ```
