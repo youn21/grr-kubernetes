@@ -54,5 +54,6 @@ autoscaling:
 mariadb:
   auth:
     database: grr
+    rootPassword: grr_root_password
     username: grr_user
     password: grr_password
