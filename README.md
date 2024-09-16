@@ -312,7 +312,7 @@ Vous conviendrez aisément que passer tout les paramètres via la ligne de comma
 
 ```
 oc_user=$(kubectl auth whoami -o jsonpath='{.status.userInfo.username}')
-cat <<EOF > values.yaml
+cat <<EOF > my-values.yaml
 ingress:
   enabled: true
   className: "openshift-default"
@@ -325,7 +325,7 @@ ingress:
           pathType: Prefix
 EOF
 ```
-Vous pouvez désormais utiliser l'option `-f values.yaml`.
+Vous pouvez désormais utiliser l'option `-f my-values.yaml`. Les valeurs présentes dans ce fichier surchargeront celles pas défaut.
 
 Adaptez maintenant le *chart* Helm pour GRR.
 
