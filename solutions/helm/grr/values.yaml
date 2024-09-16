@@ -2,6 +2,12 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+mariadb:
+  auth:
+    database: grr
+    rootPassword: grr_root_password
+    username: grr_user
+    password: grr_password
 replicaCount: 1
 image:
   repository: registry.plmlab.math.cnrs.fr/anf2024/grr
@@ -51,9 +57,3 @@ autoscaling:
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
-mariadb:
-  auth:
-    database: grr
-    rootPassword: grr_root_password
-    username: grr_user
-    password: grr_password

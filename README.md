@@ -243,8 +243,8 @@ Une fois le volume disponible, attachez-le au pod du StatefulSet MariaDB, au poi
 
 ```bash
 # yq magie !
-yq -i '.spec.template.spec |= ( {"volumes": [{"name": "mariadb", "persistentVolumeClaim": {"claimName": "mariadb"}}]} + .)'  mariadb.yml
-yq -i '.spec.template.spec.containers[0] |= ( {"volumeMounts": [{"mountPath": "/var/lib/mysql", "name": "mariadb"}]} + .)'  mariadb.yml
+yq -i '.spec.template.spec |= ({"volumes": [{"name": "mariadb", "persistentVolumeClaim": {"claimName": "mariadb"}}]} + .)'  mariadb.yml
+yq -i '.spec.template.spec.containers[0] |= ({"volumeMounts": [{"mountPath": "/var/lib/mysql", "name": "mariadb"}]} + .)'  mariadb.yml
 # on vérifie les modifications
 git diff mariadb.yml
 kubectl apply -f mariadb.yml
@@ -285,7 +285,7 @@ less grr/values.yaml
 less grr/templates
 ```
 
-Inspectez la configuration du *chart* et générer les ressources.
+Inspectez la configuration du *chart* et générez les ressources. La commande `template` permet de rendre localement et d'afficher les ressources générées sans les déployer
 
 ```bash
 # Inspection des valeurs de configuration par défaut
@@ -332,17 +332,37 @@ Adaptez maintenant le *chart* Helm pour GRR.
 ```
 yq -i '.appVersion="v4.3.5-docker-10"' grr/Chart.yaml
 yq -i '.image.repository="registry.plmlab.math.cnrs.fr/anf2024/grr"' grr/values.yaml
-helm upgrade my-grr-deployment grr/
+helm upgrade my-grr-deployment grr/ -f my-values.yaml
 ```
 
 Il vous faut à présent ajouter le service MariaDB. Pour cela, Helm offre un mécanisme de dépendances. Nous nous appuierons sur le [*chart* MariaDB offert par Bitnami](https://artifacthub.io/packages/helm/bitnami/mariadb).
 
 ```
 # yq magie !
-yq -i '.dependencies |= ( [{"name": "mariadb", "version": "19.0.5", "repository": "https://charts.bitnami.com/bitnami"}] + .)' grr/Chart.yaml
+yq -i '.dependencies |= ([{"name": "mariadb", "version": "19.0.5", "repository": "https://charts.bitnami.com/bitnami"}] + .)' grr/Chart.yaml
 helm dependency update grr/
-# on vérifie que la dépendances a bien été téléchargée
+# on vérifie que la dépendance a bien été téléchargée
 ls grr/charts/
+```
+
+Ajoutez les valeurs par défaut nécessaires au *chart* de dépendance. On utilise pour cela le nom de la dépendance déclarée dans l'étape précédente :
+
+```
+# yq magie !
+yq -i '. |= ({"mariadb": {"auth": {"database": "grr", "rootPassword": "grr_root_password", "username": "grr_user", "password": "grr_password"}}} + .)' grr/values.yaml
+```
+
+Maintenant, à vous de jouer ! Utilisez les valeurs par défaut du *chart* pour injecter les variables d'environnement au fichier `grr/templates/deployment.yaml`. Dans un template, les valeurs par défaut sont accessibles à l'aide de la notation `{{ .Values.mariadb.auth.* }}`
+
+Rappel : les variables sont `DB_NAME`, `DB_USER`, `DB_PASSWORD` et `DB_HOST`.
+
+Pour cette dernière, il faut obtenir le nom du service MariaDB généré par le subchart. C'est possible via la notation `{{ template "mariadb.primary.fullname" .Subcharts.mariadb }}`.
+
+Vérifiez vos modifications et appliquez :
+
+```
+helm template my-grr-deployment grr/ -f my-values.yaml
+helm upgrade my-grr-deployment grr/ -f my-values.yaml
 ```
 
 #### gitops ####

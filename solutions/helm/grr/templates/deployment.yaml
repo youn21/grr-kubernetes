@@ -41,7 +41,7 @@ spec:
             - name: DB_PASSWORD
               value: {{ .Values.mariadb.auth.password }}
             - name: DB_HOST
-              value: mariadb
+              value: {{ template "mariadb.primary.fullname" .Subcharts.mariadb }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
