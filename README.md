@@ -254,8 +254,6 @@ Une fois le volume disponible, attachez-le au pod du StatefulSet MariaDB, au poi
 # yq magie !
 yq -i '.spec.template.spec |= ({"volumes": [{"name": "mariadb", "persistentVolumeClaim": {"claimName": "mariadb"}}]} + .)'  mariadb.yml
 yq -i '.spec.template.spec.containers[0] |= ({"volumeMounts": [{"mountPath": "/var/lib/mysql", "name": "mariadb"}]} + .)'  mariadb.yml
-# on vérifie les modifications
-git diff mariadb.yml
 kubectl apply -f mariadb.yml
 kubectl wait --for=condition=Ready pod/mariadb-0
 # On vérifie l'état de la PVC
