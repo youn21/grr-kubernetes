@@ -113,6 +113,15 @@ nc localhost 3306
 
 Nous avons vu que les pods et leur configuration réseau sont temporaires. Afin de les exposer de manière pérenne, nous pourrions créer un service avec une IP interne comme dans la première partie. Dans le cas d'une application stateful, nous allons plutôt tirer parti des possibilités offertes par les  [StatefulSets](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/) et les [Headless services](https://kubernetes.io/docs/concepts/services-networking/service/#headless-services).
 
+Note: dans la suite, de nombreuses commande utilisent [yq](https://mikefarah.gitbook.io/yq) pour modifier les fichiers YAML. La syntaxe étant au début un peu absconse, vous pouvez utilisez `diff` ou un autre logiciel de votre choix pour voir l'effet de la commande :
+
+```bash
+# affiche la différence
+yq '.kind = "StatefulSet"' mariadb.yml|diff -y mariadb.yml
+# l'option -i (in-place) modifie le fichier
+yq -i '.kind = "StatefulSet"' mariadb.yml
+```
+
 Un peu de magie [yq](https://mikefarah.gitbook.io/yq) pour tranformer notre deployment en statefulset...
 
 ```bash
