@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "grr.fullname" . }}-migrate-{{ now | unixEpoch }}
+  labels:
+    {{- include "grr.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ .Chart.Name }}-migrate
+      labels:
+        {{- include "grr.labels" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+          command: ["/var/www/docker/nginx-unit/migrations.sh"]
+          env:
+            - name: DB_NAME
+              value: {{ .Values.mariadb.auth.database }}
+            - name: DB_USER
+              value: {{ .Values.mariadb.auth.username }}
+            - name: DB_PASSWORD
+              value: {{ .Values.mariadb.auth.password }}
+            - name: DB_HOST
+              value: {{ template "mariadb.primary.fullname" .Subcharts.mariadb }}
+

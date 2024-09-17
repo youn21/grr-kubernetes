@@ -372,4 +372,46 @@ helm template my-grr-deployment grr/ -f my-values.yaml
 helm upgrade my-grr-deployment grr/ -f my-values.yaml
 ```
 
+Il vous faut maintenant lancer les migrations de base avant le pod principal. Avec Helm, nous utiliserons le mécanisme de [Hooks](https://helm.sh/docs/topics/charts_hooks/) au lieu d'un *initContainer* :
+
+```bash
+cat <<EOF > grr/templates/job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "grr.fullname" . }}-migrate-{{ now | unixEpoch }}
+  labels:
+    {{- include "grr.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ .Chart.Name }}-migrate
+      labels:
+        {{- include "grr.labels" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+          command: ["/bin/bash", "-c", "--"]
+          args: ["echo 'Hello, will sleep 60'; sleep 60"]
+EOF
+# On vérifie et on applique
+helm template my-grr-deployment grr/ -f my-values.yaml
+helm upgrade my-grr-deployment grr/ -f my-values.yaml
+```
+Les jobs hooks sont bloquants. Vous pouvez voir l'effet dans un autre terminal:
+
+```bash
+kubectl get jobs
+kubectl get pods
+kubectl logs -f  -l batch.kubernetes.io/job-name=(kubectl get job -o jsonpath='{.items[0].metadata.name}')
+```
+Modifiez maintenant le *hook* pour qu'il lance les migrations. Appuyez-vous sur l'*initContainer* de la première partie et n'oubliez pas les variables d'environnement !
+
+Une fois le hook en place, vous devez pouvoir vous connecter à l'instance déployée avec Helm !
+
 #### gitops ####
