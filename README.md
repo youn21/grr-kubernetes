@@ -372,7 +372,7 @@ helm template my-grr-deployment grr/ -f my-values.yaml
 helm upgrade my-grr-deployment grr/ -f my-values.yaml
 ```
 
-Il vous faut maintenant lancer les migrations de base avant le pod principal. Avec Helm, nous utiliserons le mécanisme de [Hooks](https://helm.sh/docs/topics/charts_hooks/) au lieu d'un *initContainer* :
+Il vous faut maintenant lancer les migrations de base avant le pod principal. Avec Helm, nous utiliserons le mécanisme de [Hooks](https://helm.sh/docs/topics/charts_hooks/) au lieu d'un *initContainer*, en utilisant la primitive Kubernetes [Job](https://kubernetes.io/docs/concepts/workloads/controllers/job/) qui représente une tâche ponctuelle.
 
 ```bash
 cat <<EOF > grr/templates/job.yaml
