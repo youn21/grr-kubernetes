@@ -337,7 +337,7 @@ Vous pouvez désormais utiliser l'option `-f my-values.yaml`. Les valeurs prése
 Adaptez maintenant le *chart* Helm pour GRR.
 
 ```
-yq -i '.appVersion="v4.3.5-docker-10"' grr/Chart.yaml
+yq -i '.appVersion="v4.3.5-docker-11"' grr/Chart.yaml
 yq -i '.image.repository="registry.plmlab.math.cnrs.fr/anf2024/grr"' grr/values.yaml
 helm upgrade my-grr-deployment grr/ -f my-values.yaml
 ```

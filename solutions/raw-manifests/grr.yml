@@ -15,7 +15,7 @@ spec:
         app: grr
     spec:
       initContainers:
-        - image: registry.plmlab.math.cnrs.fr/anf2024/grr:v4.3.5-docker-10
+        - image: registry.plmlab.math.cnrs.fr/anf2024/grr:v4.3.5-docker-11
           name: grr-migrate
           env:
             - name: DB_NAME
@@ -28,7 +28,7 @@ spec:
               value: "mariadb"
           command: ["/var/www/docker/nginx-unit/migrations.sh"]
       containers:
-        - image: registry.plmlab.math.cnrs.fr/anf2024/grr:v4.3.5-docker-10
+        - image: registry.plmlab.math.cnrs.fr/anf2024/grr:v4.3.5-docker-11
           name: grr
           ports: 
             - containerPort: 8080
