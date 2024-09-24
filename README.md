@@ -17,14 +17,14 @@ https://plmshift.math.cnrs.fr/command-line-tools
 
 ##### Connection
 
-```
-# pour plmshift
+```bash
+# Pour plmshift
 oc login --web https://api.math.cnrs.fr
-# pour plmvshift (attention à rajouter .apps)
+# Pour plmvshift (attention à rajouter .apps)
 oc login --web https://api.apps.vodka.math.cnrs.fr
 ```
 
-```
+```bash
 oc status
 ```
 
@@ -116,9 +116,9 @@ Nous avons vu que les pods et leur configuration réseau sont temporaires. Afin 
 Note: dans la suite, de nombreuses commande utilisent [yq](https://mikefarah.gitbook.io/yq) pour modifier les fichiers YAML. La syntaxe étant au début un peu absconse, vous pouvez utilisez `diff` ou un autre logiciel de votre choix pour voir l'effet de la commande :
 
 ```bash
-# affiche la différence
+# Affiche la différence
 yq '.kind = "StatefulSet"' mariadb.yml|diff -y mariadb.yml
-# l'option -i (in-place) modifie le fichier
+# L'option -i (in-place) modifie le fichier
 yq -i '.kind = "StatefulSet"' mariadb.yml
 ```
 
@@ -130,7 +130,7 @@ yq -i '.kind = "StatefulSet"' mariadb.yml
 # Supprime les champ strategy et status
 yq -i 'del(.spec.strategy)' mariadb.yml
 yq -i 'del(.status)' mariadb.yml
-# Ajout le champ serviceName
+# Ajoute le champ serviceName
 yq -i '.spec.serviceName = "mariadb"' mariadb.yml
 # Vérification et déploiement
 less mariadb.yml
@@ -215,9 +215,11 @@ Vous n'avez désormais plus besoin de *port-forward* (qui est un mécanisme pré
 
 ```bash
 # plmshift
-firefox http://grr-$oc_user.apps.math.cnrs.fr
+firefox http://grr-$oc_user.apps.anf.math.cnrs.fr
 # plmvshift
 firefox http://grr-$oc_user.apps.vodka.math.cnrs.fr
+# anfshift
+firefox http://grr-$oc_user.apps.anf.math.cnrs.fr
 ```
 
 ### 3. Aller plus loin ###
@@ -274,6 +276,9 @@ kubectl exec -i -t mariadb-0 -- df -h /var/lib/mysql
 
 L'objectif est ici d'écrire un *chart* Helm qui permettra de faciliter le déploiement de GRR. Nous nous baserons sur un squelette (*starter*) afin d'en faciliter l'écriture.
 
+
+##### Récupération du template et initialisation du *chart* #####
+
 Clonez le dépôt pour récupérer le "starter" template.
 
 ```bash
@@ -284,20 +289,22 @@ Créez un nouveau chart à l'aide de ce template et inspectez-le :
 
 ```bash
 helm create grr -p grr-kubernetes/helm/starter/
-# fichier de description du chart, dont la version de l'application empaquetée
+# Fichier de description du chart, dont la version de l'application empaquetée
 less grr/Chart.yaml
-# valeurs par défaut
+# Valeurs par défaut
 less grr/values.yaml
-# fichiers de templates
+# Fichiers de templates
 less grr/templates
 ```
+
+##### Premiers tests #####
 
 Inspectez la configuration du *chart* et générez les ressources. La commande `template` permet de rendre localement et d'afficher les ressources générées sans les déployer
 
 ```bash
 # Inspection des valeurs de configuration par défaut
 helm show values grr/
-# le premier argument est le nom de votre déploiement, le second le nom du chart. ici on travaille avec un chart local
+# Le premier argument est le nom de votre déploiement, le second le nom du chart. ici on travaille avec un chart local
 helm template my-grr-deployment grr/
 ```
 Mettez à jour la version de nginx et déployez :
@@ -311,13 +318,13 @@ Par défaut, le *chart* ne déploie pas de règle d'ingress. on peut en ajouter 
 ```bash
 oc_user=$(kubectl auth whoami -o jsonpath='{.status.userInfo.username}')
 helm upgrade my-grr-deployment grr/
- --set ingress.enabled=true --set ingress.hosts[0].host=$oc_user-grr-helm.apps.math.cnrs.fr --set ingress.classname=openshift-default --set ingress.hosts[0].paths[0].path=/ --set ingress.hosts[0].paths[0].pathtype=prefix --set ingress.annotations."route\.openshift\.io/termination"=edge
-curl https://$oc_user-grr-helm.apps.math.cnrs.fr
+ --set ingress.enabled=true --set ingress.hosts[0].host=$oc_user-grr-helm.apps.anf.math.cnrs.fr --set ingress.classname=openshift-default --set ingress.hosts[0].paths[0].path=/ --set ingress.hosts[0].paths[0].pathType=Prefix --set ingress.annotations."route\.openshift\.io/termination"=edge
+curl https://$oc_user-grr-helm.apps.anf.math.cnrs.fr
 ```
 
 Vous conviendrez aisément que passer tout les paramètres via la ligne de commande est pénible. Soyez déclaratifs !
 
-```
+```bash
 oc_user=$(kubectl auth whoami -o jsonpath='{.status.userInfo.username}')
 cat <<EOF > my-values.yaml
 ingress:
@@ -326,7 +333,7 @@ ingress:
   annotations:
     route.openshift.io/termination: edge
   hosts:
-    - host: $oc_user-grr-helm.apps.math.cnrs.fr
+    - host: $oc_user-grr-helm.apps.anf.math.cnrs.fr
       paths:
         - path: /
           pathType: Prefix
@@ -334,9 +341,11 @@ EOF
 ```
 Vous pouvez désormais utiliser l'option `-f my-values.yaml`. Les valeurs présentes dans ce fichier surchargeront celles pas défaut.
 
+##### GRR Helm Chart ! #####
+
 Adaptez maintenant le *chart* Helm pour GRR.
 
-```
+```bash
 yq -i '.appVersion="v4.3.5-docker-11"' grr/Chart.yaml
 yq -i '.image.repository="registry.plmlab.math.cnrs.fr/anf2024/grr"' grr/values.yaml
 helm upgrade my-grr-deployment grr/ -f my-values.yaml
@@ -344,7 +353,7 @@ helm upgrade my-grr-deployment grr/ -f my-values.yaml
 
 Il vous faut à présent ajouter le service MariaDB. Pour cela, Helm offre un mécanisme de dépendances. Nous nous appuierons sur le [*chart* MariaDB offert par Bitnami](https://artifacthub.io/packages/helm/bitnami/mariadb).
 
-```
+```bash
 # yq magie !
 yq -i '.dependencies |= ([{"name": "mariadb", "version": "19.0.5", "repository": "https://charts.bitnami.com/bitnami"}] + .)' grr/Chart.yaml
 helm dependency update grr/
@@ -354,7 +363,7 @@ ls grr/charts/
 
 Ajoutez les valeurs par défaut nécessaires au *chart* de dépendance. On utilise pour cela le nom de la dépendance déclarée dans l'étape précédente :
 
-```
+```bash
 # yq magie !
 yq -i '. |= ({"mariadb": {"auth": {"database": "grr", "rootPassword": "grr_root_password", "username": "grr_user", "password": "grr_password"}}} + .)' grr/values.yaml
 ```
@@ -367,12 +376,14 @@ Pour cette dernière, il faut obtenir le nom du service MariaDB généré par le
 
 Vérifiez vos modifications et appliquez :
 
-```
+```bash
 helm template my-grr-deployment grr/ -f my-values.yaml
 helm upgrade my-grr-deployment grr/ -f my-values.yaml
 ```
 
-Il vous faut maintenant lancer les migrations de base avant le pod principal. Avec Helm, nous utiliserons le mécanisme de [Hooks](https://helm.sh/docs/topics/charts_hooks/) au lieu d'un *initContainer*, en utilisant la primitive Kubernetes [Job](https://kubernetes.io/docs/concepts/workloads/controllers/job/) qui représente une tâche ponctuelle.
+##### Les *Hooks* #####
+
+Il vous faut maintenant lancer les migrations de base. Avec Helm, nous utiliserons le mécanisme de [Hooks](https://helm.sh/docs/topics/charts_hooks/) au lieu d'un *initContainer*, en utilisant la primitive Kubernetes [Job](https://kubernetes.io/docs/concepts/workloads/controllers/job/) qui représente une tâche ponctuelle. Les annotations permettent de d'ordonnancer les exécutions, ici à la fin du déploiement (il faut que le pod MariaDB soit prêt).
 
 ```bash
 cat <<EOF > grr/templates/job.yaml
@@ -383,7 +394,7 @@ metadata:
   labels:
     {{- include "grr.labels" . | nindent 4 }}
   annotations:
-    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook: post-install,post-upgrade
     helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
 spec:
   template:
@@ -408,10 +419,51 @@ Les jobs hooks sont bloquants. Vous pouvez voir l'effet dans un autre terminal:
 ```bash
 kubectl get jobs
 kubectl get pods
-kubectl logs -f  -l batch.kubernetes.io/job-name=(kubectl get job -o jsonpath='{.items[0].metadata.name}')
+kubectl logs -f -l batch.kubernetes.io/job-name=(kubectl get job -o jsonpath='{.items[0].metadata.name}')
 ```
 Modifiez maintenant le *hook* pour qu'il lance les migrations. Appuyez-vous sur l'*initContainer* de la première partie et n'oubliez pas les variables d'environnement !
 
 Une fois le hook en place, vous devez pouvoir vous connecter à l'instance déployée avec Helm !
+
+
+##### Publiez votre *chart* #####
+
+Pour finir, vous allez publier votre chart. Ici, nous utiliserons la [possibilité offerte](https://docs.gitlab.com/ee/user/packages/helm_repository/) par Gitlab.
+
+Avant toutes choses, vérifiez que le chart est correct et que la construction du paquet se déroule correctement :
+
+```bash
+# Vérifie la syntaxe
+helm lint grr
+# Construit le paquet -- format tgz
+helm package grr
+```
+
+Créez maintenant un nouveau projet Gitlab en forkant [grr-helm](https://plmlab.math.cnrs.fr/anf2024/grr-helm), soit via l'interface web soit à l'aide de [glab](https://docs.gitlab.com/ee/editor_extensions/gitlab_cli/)
+
+```bash
+# Pour les inconditionnel·les de la CLI !
+glab repo fork anf2024/grr-helm
+```
+
+Ajoutez-y le repertoire `grr` contenant le chart, observez le fichier `.gitlab-ci.yaml`. Une fois les changements poussés, déclenchez la CI via l'interface web... ou glab.
+
+Note: le déclenchement de la CI est manuelle dans cet exemple afin de ne pas complexifier le propos.
+
+Une fois le pipeline terminé, vous pouvez ajouter le dépôt nouvellement créé à la configuration de Helm :
+
+```bash
+# On récupère l'id du projet (visible dans le menu kebab en haut à droite de la page d'accueil)
+oc_user=$(kubectl auth whoami -o jsonpath='{.status.userInfo.username}')
+project_id=$(curl  https://plmlab.math.cnrs.fr/api/v4/projects/$oc_user%2Fgrr-helm|jq -r '.id')
+helm repo add grr https://plmlab.math.cnrs.fr/api/v4/projects/$project_id/packages/helm/stable
+helm repo update
+```
+
+Vous pouvez maintenant installer une nouvelle instance simplement !
+
+```bash
+helm install my-new-deployment grr/grr  --set ingress.enabled=true --set ingress.hosts[0].host=$oc_user-grr-helm-new.apps.anf.math.cnrs.fr --set ingress.classname=openshift-default --set ingress.hosts[0].paths[0].path=/ --set ingress.hosts[0].paths[0].pathType=Prefix --set ingress.annotations."route\.openshift\.io/termination"=edge
+```
 
 #### gitops ####
