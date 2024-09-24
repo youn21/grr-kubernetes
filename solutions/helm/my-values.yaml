@@ -8,3 +8,7 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
+readinessProbe:
+  httpGet:
+    path: /healthz
+    port: http
