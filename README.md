@@ -1,5 +1,7 @@
 # TP Kubernetes
 
+[TOC]
+
 ## Prise en main
 
 ### Découverte de PLMshift
@@ -63,7 +65,7 @@ kubectl delete service nginx-pod
 kubectl delete pod nginx-pod
 ```
 
-## GRR
+## Déploiement de GRR
 
 Nous allons lancer deux pods : l'un pour l'application GRR, basé sur [NGINX Unit](https://unit.nginx.org/) et l'autre pour MariaDB.
 Le premier est contrôlé par un [Deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) qui permet le passage à l'échelle et l'autoréparation.
