@@ -8,13 +8,13 @@ metadata:
     helm.sh/hook: post-install,post-upgrade
     helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
 spec:
+  backoffLimit: 8
   template:
     metadata:
       name: {{ .Chart.Name }}-migrate
       labels:
         {{- include "grr.labels" . | nindent 8 }}
     spec:
-      restartPolicy: Never
       containers:
         - name: migrate
           image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
