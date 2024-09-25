@@ -397,7 +397,7 @@ metadata:
     helm.sh/hook: post-install,post-upgrade
     helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
 spec:
-  backoffLimit: 4
+  backoffLimit: 8
   template:
     metadata:
       name: {{ .Chart.Name }}-migrate
