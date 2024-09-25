@@ -7,6 +7,7 @@
 #### Interface web
 
 https://plmshift.math.cnrs.fr/
+https://anf2024.math.cnrs.fr/
 
 
 #### Ligne de commande
@@ -14,6 +15,7 @@ https://plmshift.math.cnrs.fr/
 ##### Installation
 
 https://plmshift.math.cnrs.fr/command-line-tools
+https://anf2024.math.cnrs.fr/command-line-tools
 
 ##### Connection
 
@@ -22,6 +24,8 @@ https://plmshift.math.cnrs.fr/command-line-tools
 oc login --web https://api.math.cnrs.fr
 # Pour plmvshift (attention à rajouter .apps)
 oc login --web https://api.apps.vodka.math.cnrs.fr
+# Pour anfshift
+oc login --web https://api.anf.math.cnrs.fr:644
 ```
 
 ```bash
@@ -196,7 +200,7 @@ metadata:
     route.openshift.io/termination: edge
 spec:
   rules:
-  - host: grr-$oc_user.apps.vodka.math.cnrs.fr
+  - host: grr-$oc_user.apps.anf.math.cnrs.fr
     http:
       paths:
       - path: /
