@@ -60,3 +60,7 @@ spec:
   - name: web
     protocol: TCP
     port: 8080
+  - name: metrics
+    protocol: TCP
+    port: 9090
+    targetPort: metrics
