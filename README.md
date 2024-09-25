@@ -195,7 +195,6 @@ metadata:
   annotations:
     route.openshift.io/termination: edge
 spec:
-  ingressClassName: openshift-default
   rules:
   - host: grr-$oc_user.apps.vodka.math.cnrs.fr
     http:
@@ -318,7 +317,7 @@ Par défaut, le *chart* ne déploie pas de règle d'ingress. on peut en ajouter 
 ```bash
 oc_user=$(kubectl auth whoami -o jsonpath='{.status.userInfo.username}')
 helm upgrade my-grr-deployment grr/
- --set ingress.enabled=true --set ingress.hosts[0].host=$oc_user-grr-helm.apps.anf.math.cnrs.fr --set ingress.classname=openshift-default --set ingress.hosts[0].paths[0].path=/ --set ingress.hosts[0].paths[0].pathType=Prefix --set ingress.annotations."route\.openshift\.io/termination"=edge
+ --set ingress.enabled=true --set ingress.hosts[0].host=$oc_user-grr-helm.apps.anf.math.cnrs.fr --set ingress.hosts[0].paths[0].path=/ --set ingress.hosts[0].paths[0].pathType=Prefix --set ingress.annotations."route\.openshift\.io/termination"=edge
 curl https://$oc_user-grr-helm.apps.anf.math.cnrs.fr
 ```
 
@@ -329,7 +328,6 @@ oc_user=$(kubectl auth whoami -o jsonpath='{.status.userInfo.username}')
 cat <<EOF > my-values.yaml
 ingress:
   enabled: true
-  className: "openshift-default"
   annotations:
     route.openshift.io/termination: edge
   hosts:
@@ -464,7 +462,7 @@ helm repo update
 Vous pouvez maintenant installer une nouvelle instance simplement !
 
 ```bash
-helm install my-new-deployment grr/grr  --set ingress.enabled=true --set ingress.hosts[0].host=$oc_user-grr-helm-new.apps.anf.math.cnrs.fr --set ingress.classname=openshift-default --set ingress.hosts[0].paths[0].path=/ --set ingress.hosts[0].paths[0].pathType=Prefix --set ingress.annotations."route\.openshift\.io/termination"=edge
+helm install my-new-deployment grr/grr  --set ingress.enabled=true --set ingress.hosts[0].host=$oc_user-grr-helm-new.apps.anf.math.cnrs.fr --set ingress.hosts[0].paths[0].path=/ --set ingress.hosts[0].paths[0].pathType=Prefix --set ingress.annotations."route\.openshift\.io/termination"=edge
 ```
 
 #### gitops ####
