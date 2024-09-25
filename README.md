@@ -404,6 +404,7 @@ spec:
       labels:
         {{- include "grr.labels" . | nindent 8 }}
     spec:
+      restartPolicy: Never
       containers:
         - name: migrate
           image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
