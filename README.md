@@ -227,8 +227,6 @@ firefox http://grr-$oc_user.apps.vodka.math.cnrs.fr
 firefox http://grr-$oc_user.apps.anf.math.cnrs.fr
 ```
 
-### 3. Aller plus loin ###
-
 #### Volume ####
 
 En l'état, les données stockées dans la base MariaDB sont éphémères : à chaque redémarrage du pod MariaDB, elles sont perdues. La problématique du stockage persistant est résolue avec Kubernetes grâce à l'abstraction [Volume](https://kubernetes.io/docs/concepts/storage/volumes/). Notez que Kubernetes est capable de communiquer avec le cloud ou le matériel sous-jacent (Cinder, dans le cas d'OpenStack). On peut alors utiliser du stockage dynamique via l'objet [PersitentVolumeClaim](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/).
