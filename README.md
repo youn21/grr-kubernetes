@@ -515,7 +515,7 @@ helm install my-new-deployment grr/grr  --set ingress.enabled=true --set ingress
 ```
 ##### Bonus #####
 
-Modifier les fichiers `values.yaml`, `deployment.yaml` et `job.yaml` pour rendre le déploiement du sous chart MariaDB optionnel !
+Modifier les fichiers `values.yaml`, `deployment.yaml` et `job.yaml` pour rendre le déploiement du sous-chart MariaDB optionnel !
 
 Astuce : utilisez les valeurs `mariadb.enabled` et `mariadb.externalHost` pour changer la valeur de la variable d'environnement `DB_HOST`. 
 
