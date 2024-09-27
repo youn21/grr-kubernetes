@@ -227,6 +227,51 @@ firefox http://grr-$oc_user.apps.vodka.math.cnrs.fr
 firefox http://grr-$oc_user.apps.anf.math.cnrs.fr
 ```
 
+#### Healthcheck ####
+
+Kubernetes utilise trois type de sondes pour évaluer l'état d'une application. Elles sont configurables au niveau de chaque conteneur.
+
+* Les [Liveness Probes](https://kubernetes.io/fr/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#d%C3%A9finir-une-commande-de-liveness) permettent de détecter une application qui ne répond plus et qu'on doit redémarrer.
+* Les [Readiness Probes](https://kubernetes.io/fr/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#d%C3%A9finir-les-readiness-probes) permette de détecter quand une application peut accepter du trafic. 
+* Les [Startup Probes](https://kubernetes.io/fr/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#define-startup-probes) permettent de laisser le temps à une application lente à démarrer.
+
+Nous nous intéresserons ici aux deux premiers types.
+
+##### Liveness probe #####
+
+Par défaut, Kubernetes considère le pod en vie tant que tous les conteneurs le composant tournent. Nous pouvons affiner ce comportement en vérifiant qu'une requête HTTP aboutit. Si celle-ci n'aboutit pas, le pod sera tué.
+
+Ajoutez la *Liveness Probe* suivante au déploiement GRR : 
+
+```bash
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+```
+
+##### Readiness probe #####
+
+De la même manière, par défaut, Kubernetes considère que le pod est prêt à recevoir du trafic dès et tant que tous les conteneurs le composant tournent.
+Affinons ici en utilisant un [endpoint spécifique](https://plmlab.math.cnrs.fr/anf2024/grr/-/blob/v4.3.5-docker/docker/nginx-unit/healthz.php?ref_type=heads) qui vérifie que la connexion à la base de donnée aboutit. Si celle-ci échoue, le pod ne recevra plus de trafic le temps que la connexion soit rétablie.
+
+Ajoutez la *Readiness Probe* suivante au déploiement GRR : 
+
+```bash
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+```
+
+Après avoir appliqué vos changements, supprimer le service MariaDB et observer l'état du pod GRR :
+
+```bash
+kubectl delete svc mariadb
+kubectl get pods --watch
+```
+
+
 #### Volume ####
 
 En l'état, les données stockées dans la base MariaDB sont éphémères : à chaque redémarrage du pod MariaDB, elles sont perdues. La problématique du stockage persistant est résolue avec Kubernetes grâce à l'abstraction [Volume](https://kubernetes.io/docs/concepts/storage/volumes/). Notez que Kubernetes est capable de communiquer avec le cloud ou le matériel sous-jacent (Cinder, dans le cas d'OpenStack). On peut alors utiliser du stockage dynamique via l'objet [PersitentVolumeClaim](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/).
@@ -348,7 +393,7 @@ Vous pouvez désormais utiliser l'option `-f my-values.yaml`. Les valeurs prése
 Adaptez maintenant le *chart* Helm pour GRR.
 
 ```bash
-yq -i '.appVersion="v4.3.5-docker-11"' grr/Chart.yaml
+yq -i '.appVersion="v4.3.5-docker-15"' grr/Chart.yaml
 yq -i '.image.repository="registry.plmlab.math.cnrs.fr/anf2024/grr"' grr/values.yaml
 helm upgrade my-grr-deployment grr/ -f my-values.yaml
 ```
