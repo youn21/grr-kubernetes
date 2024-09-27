@@ -513,5 +513,10 @@ Vous pouvez maintenant installer une nouvelle instance simplement !
 ```bash
 helm install my-new-deployment grr/grr  --set ingress.enabled=true --set ingress.hosts[0].host=$oc_user-grr-helm-new.apps.anf.math.cnrs.fr --set ingress.hosts[0].paths[0].path=/ --set ingress.hosts[0].paths[0].pathType=Prefix --set ingress.annotations."route\.openshift\.io/termination"=edge
 ```
+##### Bonus #####
+
+Modifier les fichiers `values.yaml`, `deployment.yaml` et `job.yaml` pour rendre le déploiement du sous chart MariaDB optionnel !
+
+Astuce : utilisez les valeurs `mariadb.enabled` et `mariadb.externalHost` pour changer la valeur de la variable d'environnement `DB_HOST`. 
 
 #### gitops ####
