@@ -402,7 +402,7 @@ Il vous faut à présent ajouter le service MariaDB. Pour cela, Helm offre un m�
 
 ```bash
 # yq magie !
-yq -i '.dependencies |= ([{"name": "mariadb", "version": "19.0.5", "repository": "https://charts.bitnami.com/bitnami"}] + .)' grr/Chart.yaml
+yq -i '.dependencies |= ([{"name": "mariadb", "version": "19.0.5", "repository": "https://charts.bitnami.com/bitnami", "condition": "mariadb.enabled"}] + .)' grr/Chart.yaml
 helm dependency update grr/
 # on vérifie que la dépendance a bien été téléchargée
 ls grr/charts/

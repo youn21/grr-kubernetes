@@ -1,3 +1,7 @@
+{{- $mariadbHost := .Values.mariadb.externalHost -}}
+{{- if .Values.mariadb.enabled -}}
+{{- $mariadbHost = include "mariadb.primary.fullname" .Subcharts.mariadb  -}}
+{{- end -}}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -28,5 +32,4 @@ spec:
             - name: DB_PASSWORD
               value: {{ .Values.mariadb.auth.password }}
             - name: DB_HOST
-              value: {{ template "mariadb.primary.fullname" .Subcharts.mariadb }}
-
+              value: {{ $mariadbHost }}

@@ -3,6 +3,8 @@
 # Declare variables to be passed into your templates.
 
 mariadb:
+  enabled: true
+  externalHost: mariadb.local
   auth:
     database: grr
     rootPassword: grr_root_password

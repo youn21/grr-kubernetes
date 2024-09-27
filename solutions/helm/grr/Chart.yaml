@@ -8,3 +8,4 @@ dependencies:
   - name: mariadb
     version: 19.0.5
     repository: https://charts.bitnami.com/bitnami
+    condition: mariadb.enabled

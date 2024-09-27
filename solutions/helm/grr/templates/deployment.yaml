@@ -1,3 +1,7 @@
+{{- $mariadbHost := .Values.mariadb.externalHost -}}
+{{- if .Values.mariadb.enabled -}}
+{{- $mariadbHost = include "mariadb.primary.fullname" .Subcharts.mariadb  -}}
+{{- end -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -41,7 +45,7 @@ spec:
             - name: DB_PASSWORD
               value: {{ .Values.mariadb.auth.password }}
             - name: DB_HOST
-              value: {{ template "mariadb.primary.fullname" .Subcharts.mariadb }}
+              value: {{ $mariadbHost }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
