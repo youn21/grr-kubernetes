@@ -515,8 +515,14 @@ helm install my-new-deployment grr/grr  --set ingress.enabled=true --set ingress
 ```
 ##### Bonus #####
 
+###### MariaDB externe ######
+
 Modifier les fichiers `values.yaml`, `deployment.yaml` et `job.yaml` pour rendre le déploiement du sous-chart MariaDB optionnel !
 
 Astuce : utilisez les valeurs `mariadb.enabled` et `mariadb.externalHost` pour changer la valeur de la variable d'environnement `DB_HOST`. 
 
-#### gitops ####
+###### Secret externe ######
+
+Modifier les fichiers `values.yaml`, `deployment.yaml` et `job.yaml` pour utiliser un secret externe !
+
+Note : Bon, d'accord, vous n'avez pas encore vu les [Secrets](https://kubernetes.io/fr/docs/concepts/configuration/secret/). C'était au cas où vous vous ennuyiez.
