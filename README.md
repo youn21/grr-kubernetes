@@ -89,7 +89,7 @@ Surveillez l'état du pod :
 ```bash
 kubectl get pods -w
 ```
-#### Debug ####
+#### Debug
 Le pod mariadb produit une erreur. Pour la comprendre :
 ```bash
 kubectl describe pod -l app=mariadb
@@ -108,7 +108,7 @@ kubectl apply -f mariadb.yml
 kubectl get pods -w
 ```
 
-#### Tests ####
+#### Tests
 
 Pour tester facilement que le pod mariadb répond correctement, et pour les futurs debug, vous pouvez utiliser la commande `kubectl port-forward` :
 ```bash
@@ -158,9 +158,9 @@ Vous pouvez créer un pod temporaire afin de vérifier la résolution DNS et le 
 kubectl run --rm --restart=Never -i -t --image busybox test /bin/sh
 nc mariadb 3306
 ```
-### GRR ###
+### GRR
 
-#### Déploiement de GRR (à vous de jouer) ####
+#### Déploiement de GRR (à vous de jouer)
 
 Sur l'exemple des *manifests* mariadb, créez un *manifest* pour déployer les conteneurs GRR.
 
@@ -175,7 +175,7 @@ Pensez à :
 Après avoir appliqué le *manifest*, vérifez que vous accédez au conteneur avec `kubectl port-forward`.
 
 
-#### Migration de base ####
+#### Migration de base
 
 L'application ne marchera pas en l'état, puisqu'il faut lancer les migrations de base avant de lancer l'application GRR. Ajoutez un [initContainer](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/) au déploiement, qui utilise la même image et dont le rôle sera d'éxecuter la commande `/var/www/docker/nginx-unit/migrations.sh`
 
@@ -184,7 +184,7 @@ Verifiez le bon fonctionnement de l'application à l'aide de :
 kubectl port-forward svc/grr 8080:8080
 ```
 
-#### Ingress ####
+#### Ingress
 
 Vous pouvez maintenant exposer l'application au monde extérieur grâce à l'objet [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/).
 
@@ -227,7 +227,7 @@ firefox http://grr-$oc_user.apps.vodka.math.cnrs.fr
 firefox http://grr-$oc_user.apps.anf.math.cnrs.fr
 ```
 
-#### Healthcheck ####
+#### Healthcheck
 
 Kubernetes utilise trois type de sondes pour évaluer l'état d'une application. Elles sont configurables au niveau de chaque conteneur.
 
@@ -237,7 +237,7 @@ Kubernetes utilise trois type de sondes pour évaluer l'état d'une application.
 
 Nous nous intéresserons ici aux deux premiers types.
 
-##### Liveness probe #####
+##### Liveness probe
 
 Par défaut, Kubernetes considère le pod en vie tant que tous les conteneurs le composant tournent. Nous pouvons affiner ce comportement en vérifiant qu'une requête HTTP aboutit. Si celle-ci n'aboutit pas, le pod sera tué.
 
@@ -250,7 +250,7 @@ Ajoutez la *Liveness Probe* suivante au déploiement GRR :
               port: http
 ```
 
-##### Readiness probe #####
+##### Readiness probe
 
 De la même manière, par défaut, Kubernetes considère que le pod est prêt à recevoir du trafic dès et tant que tous les conteneurs le composant tournent.
 Affinons ici en utilisant un [endpoint spécifique](https://plmlab.math.cnrs.fr/anf2024/grr/-/blob/v4.3.5-docker/docker/nginx-unit/healthz.php?ref_type=heads) qui vérifie que la connexion à la base de donnée aboutit. Si celle-ci échoue, le pod ne recevra plus de trafic le temps que la connexion soit rétablie.
@@ -272,7 +272,7 @@ kubectl get pods --watch
 ```
 
 
-#### Volume ####
+#### Volume
 
 En l'état, les données stockées dans la base MariaDB sont éphémères : à chaque redémarrage du pod MariaDB, elles sont perdues. La problématique du stockage persistant est résolue avec Kubernetes grâce à l'abstraction [Volume](https://kubernetes.io/docs/concepts/storage/volumes/). Notez que Kubernetes est capable de communiquer avec le cloud ou le matériel sous-jacent (Cinder, dans le cas d'OpenStack). On peut alors utiliser du stockage dynamique via l'objet [PersitentVolumeClaim](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/).
 
@@ -312,20 +312,20 @@ kubectl describe pvc mariadb
 kubectl exec -i -t mariadb-0 -- df -h /var/lib/mysql
 ```
 
-#### Ressources ####
+#### Ressources
 
-#### Secrets ####
+#### Secrets
 
-#### NetworkPolicy ####
+#### NetworkPolicy
 
-#### Helm ####
+## Déploiement de GRR avec Helm ####
 
 [Helm](https://helm.sh) est un moteur de template spécialisé dans la gestion du déploiement d'applications sur Kubernetes. Les *charts* Helm permettent de décrire les applications et de les distribuer. À ce titre, il est parfois considéré comme le *package manager* de Kubernetes.
 
 L'objectif est ici d'écrire un *chart* Helm qui permettra de faciliter le déploiement de GRR. Nous nous baserons sur un squelette (*starter*) afin d'en faciliter l'écriture.
 
 
-##### Récupération du template et initialisation du *chart* #####
+### Récupération du template et initialisation du *chart*
 
 Clonez le dépôt pour récupérer le "starter" template.
 
@@ -345,7 +345,7 @@ less grr/values.yaml
 less grr/templates
 ```
 
-##### Premiers tests #####
+### Premiers tests
 
 Inspectez la configuration du *chart* et générez les ressources. La commande `template` permet de rendre localement et d'afficher les ressources générées sans les déployer
 
@@ -388,7 +388,7 @@ EOF
 ```
 Vous pouvez désormais utiliser l'option `-f my-values.yaml`. Les valeurs présentes dans ce fichier surchargeront celles pas défaut.
 
-##### GRR Helm Chart ! #####
+### GRR Helm Chart !
 
 Adaptez maintenant le *chart* Helm pour GRR.
 
@@ -428,7 +428,7 @@ helm template my-grr-deployment grr/ -f my-values.yaml
 helm upgrade my-grr-deployment grr/ -f my-values.yaml
 ```
 
-##### Les *Hooks* #####
+### Les *Hooks*
 
 Il vous faut maintenant lancer les migrations de base. Avec Helm, nous utiliserons le mécanisme de [Hooks](https://helm.sh/docs/topics/charts_hooks/) au lieu d'un *initContainer*, en utilisant la primitive Kubernetes [Job](https://kubernetes.io/docs/concepts/workloads/controllers/job/) qui représente une tâche ponctuelle. Les annotations permettent de d'ordonnancer les exécutions, ici à la fin du déploiement (il faut que le pod MariaDB soit prêt).
 
@@ -474,7 +474,7 @@ Modifiez maintenant le *hook* pour qu'il lance les migrations. Appuyez-vous sur 
 Une fois le hook en place, vous devez pouvoir vous connecter à l'instance déployée avec Helm !
 
 
-##### Publiez votre *chart* #####
+### Publiez votre *chart*
 
 Pour finir, vous allez publier votre chart. Ici, nous utiliserons la [possibilité offerte](https://docs.gitlab.com/ee/user/packages/helm_repository/) par Gitlab.
 
@@ -513,15 +513,15 @@ Vous pouvez maintenant installer une nouvelle instance simplement !
 ```bash
 helm install my-new-deployment grr/grr  --set ingress.enabled=true --set ingress.hosts[0].host=$oc_user-grr-helm-new.apps.anf.math.cnrs.fr --set ingress.hosts[0].paths[0].path=/ --set ingress.hosts[0].paths[0].pathType=Prefix --set ingress.annotations."route\.openshift\.io/termination"=edge
 ```
-##### Bonus #####
+### Bonus
 
-###### MariaDB externe ######
+#### MariaDB externe
 
 Modifier les fichiers `values.yaml`, `deployment.yaml` et `job.yaml` pour rendre le déploiement du sous-chart MariaDB optionnel !
 
 Astuce : utilisez les valeurs `mariadb.enabled` et `mariadb.externalHost` pour changer la valeur de la variable d'environnement `DB_HOST`. 
 
-###### Secret externe ######
+#### Secret externe
 
 Modifier les fichiers `values.yaml`, `deployment.yaml` et `job.yaml` pour utiliser un secret externe !
 
