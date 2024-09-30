@@ -38,14 +38,21 @@ spec:
               name: metrics
               protocol: TCP
           env:
+            - name: DB_HOST
+              value: {{ $mariadbHost }}
             - name: DB_NAME
               value: {{ .Values.mariadb.auth.database }}
             - name: DB_USER
               value: {{ .Values.mariadb.auth.username }}
             - name: DB_PASSWORD
+            {{- if .Values.mariadb.auth.existingSecret }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mariadb.auth.existingSecret }}
+                  key: mariadb-password
+            {{- else }}
               value: {{ .Values.mariadb.auth.password }}
-            - name: DB_HOST
-              value: {{ $mariadbHost }}
+            {{- end }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
