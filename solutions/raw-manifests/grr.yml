@@ -17,6 +17,10 @@ spec:
       initContainers:
         - image: registry.plmlab.math.cnrs.fr/anf2024/grr:v4.3.5-docker-15
           name: grr-migrate
+          # Injection des variables DB_NAME, DB_USER et DB_PASSWORD via le Secret
+          # envFrom:
+          #   - secretRef:
+          #      name: grr
           env:
             - name: DB_NAME
               value: "grr"
