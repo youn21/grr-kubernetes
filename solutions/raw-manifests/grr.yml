@@ -39,6 +39,10 @@ spec:
               name: http
             - containerPort: 9090
               name: metrics
+          # Injection des variables DB_NAME, DB_USER et DB_PASSWORD via le Secret
+          # envFrom:
+          #   - secretRef:
+          #      name: grr
           env:
             - name: DB_NAME
               value: "grr"
