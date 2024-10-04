@@ -100,8 +100,6 @@ kubectl logs -l app=mariadb --tail -1
 ```
 On voit qu'il manque des options (variables d'environnement) pour que le conteneur mariadb démarre correctement. Définissez les variables `MYSQL_ROOT_PASSWORD`, `MYSQL_USER`, `MYSQL_PASSWORD` et `MYSQL_DATABASE` dans le fichier `mariadb.yml` à l'aide du champ [env](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/). Profitez-en pour positionner `MYSQL_CHARSET` à la valeur `utf8mb4`.
 
-_Dans la suite, nous verrons comment éviter les secrets en clair... Si nous avons le temps ;)_
-
 Une fois les variables définies, réappliquez les changements et vérifiez que le pod tourne :
 ```bash
 kubectl apply -f mariadb.yml
