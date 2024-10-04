@@ -227,6 +227,46 @@ firefox http://grr-$oc_user.apps.vodka.math.cnrs.fr
 firefox http://grr-$oc_user.apps.anf.math.cnrs.fr
 ```
 
+#### Volume
+
+En l'état, les données stockées dans la base MariaDB sont éphémères : à chaque redémarrage du pod MariaDB, elles sont perdues. La problématique du stockage persistant est résolue avec Kubernetes grâce à l'abstraction [Volume](https://kubernetes.io/docs/concepts/storage/volumes/). Notez que Kubernetes est capable de communiquer avec le cloud ou le matériel sous-jacent (Cinder, dans le cas d'OpenStack). On peut alors utiliser du stockage dynamique via l'objet [PersitentVolumeClaim](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/).
+
+
+Définissez l'objet PersitentVolumeClaim :
+
+``` bash
+cat <<EOF > pvc.yml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mariadb
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+EOF
+kubectl apply -f pvc.yml
+# En fonction de la configuration de la storageclasse, la PVC peut n'être créée
+# qu'au moment ou elle est attachée à un pod (VOLUMEBINDINGMODE WaitForFirstConsumer)
+kubectl describe pvc mariadb
+```
+
+Une fois le volume disponible, attachez-le au pod du StatefulSet MariaDB, au point de montage `/var/lib/mysql`. Verifiez ensuite qu'un redémarrage du pod préserve les données.
+
+```bash
+# yq magie !
+yq -i '.spec.template.spec |= ({"volumes": [{"name": "mariadb", "persistentVolumeClaim": {"claimName": "mariadb"}}]} + .)'  mariadb.yml
+yq -i '.spec.template.spec.containers[0] |= ({"volumeMounts": [{"mountPath": "/var/lib/mysql", "name": "mariadb"}]} + .)'  mariadb.yml
+kubectl apply -f mariadb.yml
+kubectl wait --for=condition=Ready pod/mariadb-0
+# On vérifie l'état de la PVC
+kubectl describe pvc mariadb
+# On vérifie le point de montage
+kubectl exec -i -t mariadb-0 -- df -h /var/lib/mysql
+```
+
 #### Healthcheck
 
 Kubernetes utilise trois type de sondes pour évaluer l'état d'une application. Elles sont configurables au niveau de chaque conteneur.
@@ -271,52 +311,10 @@ kubectl delete svc mariadb
 kubectl get pods --watch
 ```
 
-
-#### Volume
-
-En l'état, les données stockées dans la base MariaDB sont éphémères : à chaque redémarrage du pod MariaDB, elles sont perdues. La problématique du stockage persistant est résolue avec Kubernetes grâce à l'abstraction [Volume](https://kubernetes.io/docs/concepts/storage/volumes/). Notez que Kubernetes est capable de communiquer avec le cloud ou le matériel sous-jacent (Cinder, dans le cas d'OpenStack). On peut alors utiliser du stockage dynamique via l'objet [PersitentVolumeClaim](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/).
-
-
-Définissez l'objet PersitentVolumeClaim :
-
-``` bash
-cat <<EOF > pvc.yml
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mariadb
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-EOF
-kubectl apply -f pvc.yml
-# En fonction de la configuration de la storageclasse, la PVC peut n'être créée
-# qu'au moment ou elle est attachée à un pod (VOLUMEBINDINGMODE WaitForFirstConsumer)
-kubectl describe pvc mariadb
-```
-
-Une fois le volume disponible, attachez-le au pod du StatefulSet MariaDB, au point de montage `/var/lib/mysql`. Verifiez ensuite qu'un redémarrage du pod préserve les données.
-
-```bash
-# yq magie !
-yq -i '.spec.template.spec |= ({"volumes": [{"name": "mariadb", "persistentVolumeClaim": {"claimName": "mariadb"}}]} + .)'  mariadb.yml
-yq -i '.spec.template.spec.containers[0] |= ({"volumeMounts": [{"mountPath": "/var/lib/mysql", "name": "mariadb"}]} + .)'  mariadb.yml
-kubectl apply -f mariadb.yml
-kubectl wait --for=condition=Ready pod/mariadb-0
-# On vérifie l'état de la PVC
-kubectl describe pvc mariadb
-# On vérifie le point de montage
-kubectl exec -i -t mariadb-0 -- df -h /var/lib/mysql
-```
-
-#### Ressources
-
 #### Secrets
 
-#### NetworkPolicy
+Voir [ici](./slides/secrets.pdf)
+
 
 ## Déploiement de GRR avec Helm ####
 
