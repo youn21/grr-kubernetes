@@ -1,0 +1,297 @@
+---
+header-includes:
+    - '\usetheme[titleformat=smallcaps,numbering=none,progressbar=frametitle]{metropolis}'
+    - '\usepackage[fixed]{fontawesome5}'
+    - '\definecolor{links}{HTML}{661100}'
+    - '\hypersetup{colorlinks,linkcolor=,urlcolor=links}'
+title: Gestion des secrets avec Kubernetes
+subtitle: ""
+author: Rémi Cailletaud
+date: 15 octobre 2024
+institute: ANF Mathrice 2024
+#titlegraphic: '`{\hfill\includegraphics[height=1.5cm]{LOGO-JRES-2022.png}`{=latex}'
+aspectratio: 169
+---
+## Introduction
+
+\large
+\center{La réputation d'un système complexe… est-elle méritée ?}
+
+```{=latex}
+\begin{center}
+```
+![](media/introduction-0.png){width=200px}\
+
+```{=latex}
+\end{center}
+```
+
+## Les conteneurs
+
+- PyCon 2013… Tout juste 10 ans !
+- *Build once, run anywhere*: packaging de l'application et de ses dépendances. Runtime léger, magasin d'applications !
+- Separation of Concerns: le Dev est intéressé par l'intérieur du conteneur, l'Ops par l'extérieur (logging, monitoring, réseau…)
+- Normalisation du format (OCI Image Format) et des runtimes (OCI Runtime): containerd, cri-o, kata…
+
+## Kubernetes : historique
+
+- Deux projets Google, dont Google Borg, en Java.
+- Réécriture en Go, version 1.0 en 2015.
+- Pilotage par Google, puis par la Cloud Native Foundation (Linux Foundation) depuis août 2018.
+
+
+## Kubernetes
+
+\huge
+\center{«We must treat the datacenter itself as one massive warehouse-scale computer.»}
+\tiny
+
+
+in *The Datacenter as a Computer: An Introduction to the Design of Warehouse-Scale Machines*  
+Luiz André, BarrosoJimmy Clidaras, Urs Hölzle
+
+
+## Kubernetes : objectifs
+
+  - L'abstraction des couches matérielles et système.
+  - Le couplage faible des composants.
+  - Un surcoût minimal.
+  - Fonctionnement indifférent sur machines physiques et sur machine virtuelles.
+- L'OS du cloud
+
+
+## Kubernetes : concepts
+
+\huge
+\center{Une API déclarative}
+
+\normalsize
+On définit des «contrats» pour nos applications.
+
+
+## Kubernetes : concepts
+
+\huge
+\center{Des capacités d'autoréparation}
+
+\normalsize
+:::::::::::::: {.columns}
+::: {.column width="50%"}
+Avant
+
+![](media/kubernetes-concepts-0.png)
+:::
+::: {.column width="50%"}
+Après
+
+![](media/kubernetes-concepts-1.png)
+:::
+::::::::::::::
+
+
+## Kubernetes : concepts
+
+\huge
+\center{Une infrastructure immutable}
+
+\normalsize
+- Tests facilités.
+- Passage à l'échelle.
+- Mise à jour et retour en arrière.
+
+
+## Kubernetes : architecture
+
+:::::::::::::: {.columns}
+::: {.column width="50%"}
+- Une séparation nette du plan de contrôle et du plan de travail.
+- Configuration par un point unique, via l'API.
+- Composants faiblement couplés : communication uniquement avec l'API.
+:::
+::: {.column width="50%"}
+![](media/kubernetes-architecture-0.png){width=250px}
+:::
+::::::::::::::
+
+## Kubernetes : le plan de contrôle
+
+:::::::::::::: {.columns}
+::: {.column width="70%"}
+- L'API au centre du système.
+- etcd pour le stockage clé/valeur.
+- Des boucles de contrôles : kube-controller-manager.
+- Un ordonnanceur : kube-scheduler.
+- Un composant pour l'intégration au cloud : cloud-controller-manager
+:::
+::: {.column width="30%"}
+![](media/kubernetes-le-plan-de-controle-0.png){width=110px}
+:::
+::::::::::::::
+
+## Kubernetes : le plan de travail
+
+:::::::::::::: {.columns}
+::: {.column width="70%"}
+- Gestion des charges de travail (pods) : kubelet.
+- Gestion des règles de forwarding et de l'équilibrage de charge : kube-proxy (ou un CNI l'implémentant)
+- Un runtime compatible Container Runtime Interface: Docker, containerd, CRI-O, Kata...
+:::
+::: {.column width="30%"}
+
+![](media/kubernetes-le-plan-de-travail-0.png){width=110px}
+:::
+::::::::::::::
+
+## Les objets de base : Namespace
+
+```yaml
+apiVersion: v1 # version de l'API
+kind: Namespace # type de l'objet
+metadata:
+  name: anf24 # nom de l'objet
+```
+
+## Les objets de base : Pod
+
+\large
+\center{Ressource éphémère : Nom et IP non persistants !}
+
+\scriptsize
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  namespace: test-ns
+spec:
+  containers:
+  - image: nginxinc/nginx-unprivileged:latest # Image utilisée
+    imagePullPolicy: Always
+    name: nginx-pod
+    containerPort: 80 # Port exposé  en interne (purement informationnel)
+    resources: # Resources demandées et limites
+      limits:
+        cpu: 600m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 512Mi
+```
+
+## Les objets de base : Deployment
+
+\tiny
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grr
+  namespace: test-ns
+spec:
+  replicas: 3 # Le nombre de réplicas
+  selector:
+    matchLabels:
+      app: grr
+  template: # Un template de pod
+    metadata:
+      labels: # Des labels…
+        app: grr
+    spec:
+      containers:
+        image: registry.plmlab.math.cnrs.fr/anf2024/grr:v4.3.5-docker-8
+        imagePullPolicy: IfNotPresent
+        name: grr
+        ports:
+        - containerPort: 8080
+          name: web
+          protocol: TCP
+```
+
+## Les objets de base : ordonnancement
+
+- StatefulSet : réseau, stockage et nom d'hôte persistants. Utile pour les applications statefull (et/ou en cluster).
+- DaemonSet : un pod par nœud. Utile pour le monitoring, les logs, le stockage...
+
+
+## Les objets de base : Service
+
+\center{Ressource durable qui permet d'exposer les pods et la découverte de service.\\Adresse IP et nom DNS statiques}
+
+\footnotesize
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: grr
+  namespace: test-ns
+spec:
+  ports:
+  - name: web
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector: # Sélection des pods par label
+    app: grr
+```
+
+## Les objets de base...
+
+- Job, CronJob : gestion des tâches. 
+- Volume, PersistentVolume, PersistentVolumeClaim : gestion des volumes persistants.
+- ConfigMap, Secret : gestion de la configuration et des secrets.
+- Ingress : gestion du reverse-proxy.
+
+
+## Custom Resources Definition et Operators
+
+- CRD : extension de l'API Kubernetes, de nouveaux objets
+- Custom Controllers
+- Operator Pattern : automatisation des processus de déploiements en utilisant CRDs et Custom Controllers
+- Exemples: ElasticSearch, PostgreSQL, Prometheus, …
+- Voir https://operatorhub.io/
+
+
+## Helm: The package manager for Kubernetes
+
+- Gestion de packages (*charts*) pour Kubernetes.
+- En fait, un moteur de templating avec la possibilité de publier les charts.
+- Devenu le standard pour la distribution d'application.
+- Des alternatives existent : kustomize, jsonnet, ksonnet.
+
+
+## Argo CD: Declarative GitOps CD for K8s
+
+- GitOps: gestion de l'infrastructure et des configurations d'applications qui reposent sur l'utilisation de Git.
+- Une unique source de vérité pour la formalisation déclarative de l'infrastructure et des applications.
+- Fonctionne avec kustomize, Helm, jsonnet, ksonnet.
+- Intégration d'outils tiers facile.
+- Bootstrap de cluster !
+
+
+## CNCF: Cloud Native Computing Foundation
+
+- Projet de la Linux Foundation.
+- Lancé en 2015 pour aider à faire progresser les technologies conteneurs. 
+- 752 membres, dont Google, Red Hat, Huawei, Intel, Cisco, IBM, et VMware.
+- Pilotage de Kubernetes depuis 2018.
+- 26 projets Graduated, 36 projets Incubating, 124 projets Sandbox.
+
+
+## CNCF: Cloud Native Computing Foundation
+
+![L'écosystème Kubernetes](media/landscape.png)
+
+## Conclusion
+
+- Fiable, robuste, complet, extensible, pas si complexe.
+- De nouveaux paradigmes, un ecosystème très (très(très)) dynamique…
+
+\center{… mais ne résoud pas tout vos problèmes !}
+
+```{=latex}
+\begin{center}
+```
+![](media/dilbert.jpg){width=400px}
+```{=latex}
+\end{center}
+```
