@@ -7,7 +7,7 @@ header-includes:
 title: Gestion des secrets avec Kubernetes
 subtitle: ""
 author: Rémi Cailletaud
-date: 15 octobre 2024
+date: 14 octobre 2024
 institute: ANF Mathrice 2024
 #titlegraphic: '`{\hfill\includegraphics[height=1.5cm]{LOGO-JRES-2022.png}`{=latex}'
 aspectratio: 169
