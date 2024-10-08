@@ -4,7 +4,7 @@ header-includes:
     - '\usepackage[fixed]{fontawesome5}'
     - '\definecolor{links}{HTML}{661100}'
     - '\hypersetup{colorlinks,linkcolor=,urlcolor=links}'
-title: Gestion des secrets avec Kubernetes
+title: Introduction à Kubernetes
 subtitle: ""
 author: Rémi Cailletaud
 date: 14 octobre 2024
