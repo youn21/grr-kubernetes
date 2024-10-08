@@ -118,10 +118,10 @@ Après
 :::::::::::::: {.columns}
 ::: {.column width="70%"}
 - L'API au centre du système.
-- etcd pour le stockage clé/valeur.
-- Des boucles de contrôles : kube-controller-manager.
-- Un ordonnanceur : kube-scheduler.
-- Un composant pour l'intégration au cloud : cloud-controller-manager
+- *etcd* pour le stockage clé/valeur.
+- Des boucles de contrôles : *kube-controller-manager*.
+- Un ordonnanceur : *kube-scheduler*.
+- Un composant pour l'intégration au cloud : *cloud-controller-manager*.
 :::
 ::: {.column width="30%"}
 ![](media/kubernetes-le-plan-de-controle-0.png){width=110px}
@@ -132,8 +132,8 @@ Après
 
 :::::::::::::: {.columns}
 ::: {.column width="70%"}
-- Gestion des charges de travail (pods) : kubelet.
-- Gestion des règles de forwarding et de l'équilibrage de charge : kube-proxy (ou un CNI l'implémentant)
+- Gestion des charges de travail (pods) : *kubelet*.
+- Gestion des règles de forwarding et de l'équilibrage de charge : *kube-proxy* (ou un CNI l'implémentant)
 - Un runtime compatible Container Runtime Interface: Docker, containerd, CRI-O, Kata...
 :::
 ::: {.column width="30%"}
