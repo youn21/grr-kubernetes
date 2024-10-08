@@ -29,9 +29,9 @@ aspectratio: 169
 ## Les conteneurs
 
 - PyCon 2013… Tout juste 10 ans !
-- *Build once, run anywhere*: packaging de l'application et de ses dépendances. Runtime léger, magasin d'applications !
-- Separation of Concerns: le Dev est intéressé par l'intérieur du conteneur, l'Ops par l'extérieur (logging, monitoring, réseau…)
-- Normalisation du format (OCI Image Format) et des runtimes (OCI Runtime): containerd, cri-o, kata…
+- *Build once, run anywhere* : packaging de l'application et de ses dépendances. Runtime léger, magasin d'applications !
+- Separation of Concerns : le Dev est intéressé par l'intérieur du conteneur, l'Ops par l'extérieur (logging, monitoring, réseau…)
+- Normalisation du format (OCI Image Format) et des runtimes (OCI Runtime) : containerd, cri-o, kata…
 
 ## Kubernetes : historique
 
@@ -47,7 +47,7 @@ aspectratio: 169
 \tiny
 
 
-in *The Datacenter as a Computer: An Introduction to the Design of Warehouse-Scale Machines*  
+in *The Datacenter as a Computer : An Introduction to the Design of Warehouse-Scale Machines*  
 Luiz André, BarrosoJimmy Clidaras, Urs Hölzle
 
 
@@ -134,7 +134,7 @@ Après
 ::: {.column width="70%"}
 - Gestion des charges de travail (pods) : *kubelet*.
 - Gestion des règles de forwarding et de l'équilibrage de charge : *kube-proxy* (ou un CNI l'implémentant)
-- Un runtime compatible Container Runtime Interface: Docker, containerd, CRI-O, Kata...
+- Un runtime compatible Container Runtime Interface : Docker, containerd, CRI-O, Kata...
 :::
 ::: {.column width="30%"}
 
@@ -247,11 +247,11 @@ spec:
 - CRD : extension de l'API Kubernetes, de nouveaux objets
 - Custom Controllers
 - Operator Pattern : automatisation des processus de déploiements en utilisant CRDs et Custom Controllers
-- Exemples: ElasticSearch, PostgreSQL, Prometheus, …
+- Exemples : ElasticSearch, PostgreSQL, Prometheus, …
 - Voir https://operatorhub.io/
 
 
-## Helm: The package manager for Kubernetes
+## Helm : The package manager for Kubernetes
 
 - Gestion de packages (*charts*) pour Kubernetes.
 - En fait, un moteur de templating avec la possibilité de publier les charts.
@@ -259,16 +259,16 @@ spec:
 - Des alternatives existent : kustomize, jsonnet, ksonnet.
 
 
-## Argo CD: Declarative GitOps CD for K8s
+## Argo CD : Declarative GitOps CD for K8s
 
-- GitOps: gestion de l'infrastructure et des configurations d'applications qui reposent sur l'utilisation de Git.
+- GitOps : gestion de l'infrastructure et des configurations d'applications qui reposent sur l'utilisation de Git.
 - Une unique source de vérité pour la formalisation déclarative de l'infrastructure et des applications.
 - Fonctionne avec kustomize, Helm, jsonnet, ksonnet.
 - Intégration d'outils tiers facile.
 - Bootstrap de cluster !
 
 
-## CNCF: Cloud Native Computing Foundation
+## CNCF : Cloud Native Computing Foundation
 
 - Projet de la Linux Foundation.
 - Lancé en 2015 pour aider à faire progresser les technologies conteneurs. 
@@ -277,7 +277,7 @@ spec:
 - 26 projets Graduated, 36 projets Incubating, 124 projets Sandbox.
 
 
-## CNCF: Cloud Native Computing Foundation
+## CNCF : Cloud Native Computing Foundation
 
 ![L'écosystème Kubernetes](media/landscape.png)
 
