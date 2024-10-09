@@ -22,6 +22,9 @@ aspectratio: 169
 ```
 ![](media/introduction-0.png){width=200px}\
 
+\tiny
+\center{Source: r/kubernetes}
+
 ```{=latex}
 \end{center}
 ```
@@ -110,21 +113,33 @@ Après
 :::
 ::: {.column width="50%"}
 ![](media/kubernetes-architecture-0.png){width=250px}
+
+\tiny
+\center{Source: Introduction to Kubernetes by Rishabh Indoria (March 2019)}
 :::
 ::::::::::::::
 
 ## Kubernetes : le plan de contrôle
 
 :::::::::::::: {.columns}
-::: {.column width="70%"}
+::: {.column width="60%"}
 - L'API au centre du système.
 - *etcd* pour le stockage clé/valeur.
 - Des boucles de contrôles : *kube-controller-manager*.
 - Un ordonnanceur : *kube-scheduler*.
 - Un composant pour l'intégration au cloud : *cloud-controller-manager*.
 :::
-::: {.column width="30%"}
+::: {.column width="40%"}
+```{=latex}
+\begin{center}
+```
 ![](media/kubernetes-le-plan-de-controle-0.png){width=110px}
+```{=latex}
+\end{center}
+```
+
+\tiny
+\center{Source: Introduction to Kubernetes by Rishabh Indoria (March 2019)}
 :::
 ::::::::::::::
 
@@ -138,7 +153,16 @@ Après
 :::
 ::: {.column width="30%"}
 
+```{=latex}
+\begin{center}
+```
 ![](media/kubernetes-le-plan-de-travail-0.png){width=110px}
+```{=latex}
+\end{center}
+```
+
+\tiny
+\center{Source: Introduction to Kubernetes by Rishabh Indoria (March 2019)}
 :::
 ::::::::::::::
 
@@ -279,19 +303,32 @@ spec:
 
 ## CNCF : Cloud Native Computing Foundation
 
-![L'écosystème Kubernetes](media/landscape.png)
+```{=latex}
+\begin{center}
+```
+![](media/landscape.png){width=170px}
+
+\tiny
+\center{Source: https://landscape.cncf.io/}
+```{=latex}
+\end{center}
+```
+
 
 ## Conclusion
 
 - Fiable, robuste, complet, extensible, pas si complexe.
-- De nouveaux paradigmes, un ecosystème très (très(très)) dynamique…
+- De nouveaux paradigmes, un ecosystème très (très (très)) dynamique…
 
 \center{… mais ne résoud pas tout vos problèmes !}
 
 ```{=latex}
 \begin{center}
 ```
-![](media/dilbert.jpg){width=400px}
+![](media/dilbert.jpg){width=350px}
 ```{=latex}
 \end{center}
 ```
+
+\tiny
+\center{Source: dilbert.com}
