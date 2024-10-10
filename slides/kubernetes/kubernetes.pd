@@ -33,7 +33,7 @@ aspectratio: 169
 
 - PyCon 2013… Tout juste 10 ans !
 - *Build once, run anywhere* : packaging de l'application et de ses dépendances. Runtime léger, magasin d'applications !
-- Separation of Concerns : le Dev est intéressé par l'intérieur du conteneur, l'Ops par l'extérieur (logging, monitoring, réseau…)
+- *Separation of Concerns* : séparation de la logique métier — dans le conteneur de l'exploitation — logging, monitoring, réseau…
 - Normalisation du format (OCI Image Format) et des runtimes (OCI Runtime) : containerd, cri-o, kata…
 
 ## Kubernetes : historique
