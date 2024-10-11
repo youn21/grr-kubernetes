@@ -4,30 +4,23 @@
 
 ## Prise en main
 
-### Découverte de PLMshift
+### Découverte de la plateforme OKD (openshift communautaire)
 
 #### Interface web
 
-https://plmshift.math.cnrs.fr/
 https://anf2024.math.cnrs.fr/
-
 
 #### Ligne de commande
 
 ##### Installation
 
-https://plmshift.math.cnrs.fr/command-line-tools
 https://anf2024.math.cnrs.fr/command-line-tools
 
 ##### Connection
 
 ```bash
-# Pour plmshift
-oc login --web https://api.math.cnrs.fr
-# Pour plmvshift (attention à rajouter .apps)
-oc login --web https://api.apps.vodka.math.cnrs.fr
 # Pour anfshift
-oc login --web https://api.anf.math.cnrs.fr:644
+oc login --web https://api.anf.math.cnrs.fr:6443
 ```
 
 ```bash
@@ -217,11 +210,6 @@ kubectl apply -f ingress.yml
 Vous n'avez désormais plus besoin de *port-forward* (qui est un mécanisme prévu pr le debug) pour accéder à votre application :
 
 ```bash
-# plmshift
-firefox http://grr-$oc_user.apps.anf.math.cnrs.fr
-# plmvshift
-firefox http://grr-$oc_user.apps.vodka.math.cnrs.fr
-# anfshift
 firefox http://grr-$oc_user.apps.anf.math.cnrs.fr
 ```
 
@@ -270,7 +258,7 @@ kubectl exec -i -t mariadb-0 -- df -h /var/lib/mysql
 Kubernetes utilise trois type de sondes pour évaluer l'état d'une application. Elles sont configurables au niveau de chaque conteneur.
 
 * Les [Liveness Probes](https://kubernetes.io/fr/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#d%C3%A9finir-une-commande-de-liveness) permettent de détecter une application qui ne répond plus et qu'on doit redémarrer.
-* Les [Readiness Probes](https://kubernetes.io/fr/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#d%C3%A9finir-les-readiness-probes) permette de détecter quand une application peut accepter du trafic. 
+* Les [Readiness Probes](https://kubernetes.io/fr/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#d%C3%A9finir-les-readiness-probes) permette de détecter quand une application peut accepter du trafic.
 * Les [Startup Probes](https://kubernetes.io/fr/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#define-startup-probes) permettent de laisser le temps à une application lente à démarrer.
 
 Nous nous intéresserons ici aux deux premiers types.
@@ -279,7 +267,7 @@ Nous nous intéresserons ici aux deux premiers types.
 
 Par défaut, Kubernetes considère le pod en vie tant que tous les conteneurs le composant tournent. Nous pouvons affiner ce comportement en vérifiant qu'une requête HTTP aboutit. Si celle-ci n'aboutit pas, le pod sera tué.
 
-Ajoutez la *Liveness Probe* suivante au déploiement GRR : 
+Ajoutez la *Liveness Probe* suivante au déploiement GRR :
 
 ```bash
           livenessProbe:
@@ -293,7 +281,7 @@ Ajoutez la *Liveness Probe* suivante au déploiement GRR :
 De la même manière, par défaut, Kubernetes considère que le pod est prêt à recevoir du trafic dès et tant que tous les conteneurs le composant tournent.
 Affinons ici en utilisant un [endpoint spécifique](https://plmlab.math.cnrs.fr/anf2024/grr/-/blob/v4.3.5-docker/docker/nginx-unit/healthz.php?ref_type=heads) qui vérifie que la connexion à la base de donnée aboutit. Si celle-ci échoue, le pod ne recevra plus de trafic le temps que la connexion soit rétablie.
 
-Ajoutez la *Readiness Probe* suivante au déploiement GRR : 
+Ajoutez la *Readiness Probe* suivante au déploiement GRR :
 
 ```bash
           readinessProbe:
@@ -515,7 +503,7 @@ helm install my-new-deployment grr/grr  --set ingress.enabled=true --set ingress
 
 Modifier les fichiers `values.yaml`, `deployment.yaml` et `job.yaml` pour rendre le déploiement du sous-chart MariaDB optionnel !
 
-Astuce : utilisez les valeurs `mariadb.enabled` et `mariadb.externalHost` pour changer la valeur de la variable d'environnement `DB_HOST`. 
+Astuce : utilisez les valeurs `mariadb.enabled` et `mariadb.externalHost` pour changer la valeur de la variable d'environnement `DB_HOST`.
 
 #### Secret externe
 
