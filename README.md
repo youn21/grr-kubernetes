@@ -61,8 +61,13 @@ kubectl delete pod nginx-pod
 ## Déploiement de GRR
 
 Nous allons lancer deux pods : l'un pour l'application GRR, basé sur [NGINX Unit](https://unit.nginx.org/) et l'autre pour MariaDB.
+
+
 Le premier est contrôlé par un [Deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) qui permet le passage à l'échelle et l'autoréparation.
+
 Le second est contrôlé par un [StatefulSet](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/) qui est recommandé pour les charge de travail stateful, avec un besoin de stockage persistant stable par exemple.
+
+Note : nous utiliserons une image contenant une [version légèrement modifiée](https://plmlab.math.cnrs.fr/anf2024/grr/-/tree/v4.3.5-docker/docker/nginx-unit?ref_type=heads) de GRR.
 
 ### Mariadb ###
 
