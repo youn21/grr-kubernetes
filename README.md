@@ -60,6 +60,8 @@ kubectl delete pod nginx-pod
 
 ## Déploiement de GRR
 
+![GRR architecture](./grr-architecture.png) 
+
 Nous allons lancer deux pods : l'un pour l'application GRR, basé sur [NGINX Unit](https://unit.nginx.org/) et l'autre pour MariaDB.
 
 
