@@ -180,6 +180,8 @@ Verifiez le bon fonctionnement de l'application à l'aide de :
 kubectl port-forward svc/grr 8080:8080
 ```
 
+Note: Vous pouvez voir les logs des différents conteneurs en spécifiant `kubectl logs grr -c nom-du-conteneur`
+
 #### Ingress
 
 Vous pouvez maintenant exposer l'application au monde extérieur grâce à l'objet [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/).
@@ -304,7 +306,7 @@ kubectl get pods --watch
 
 #### Secrets
 
-Voir [ici](./slides/secrets.pdf)
+Voir [ici](./slides/secrets/secrets.pdf)
 
 
 ## Déploiement de GRR avec Helm ####
