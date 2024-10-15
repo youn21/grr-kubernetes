@@ -351,7 +351,7 @@ helm template my-grr-deployment grr/
 Mettez à jour la version de nginx et déployez :
 
 ```bash
-yq -i '.appversion="1.27"' grr/Chart.yaml
+yq -i '.appVersion="1.27"' grr/Chart.yaml
 helm install my-grr-deployment grr/
 ```
 Par défaut, le *chart* ne déploie pas de règle d'ingress. on peut en ajouter une en positionnant les variables à l'aide de l'option `--set`.
