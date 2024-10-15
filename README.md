@@ -460,7 +460,7 @@ Les jobs hooks sont bloquants. Vous pouvez voir l'effet dans un autre terminal:
 ```bash
 kubectl get jobs
 kubectl get pods
-kubectl logs -f -l batch.kubernetes.io/job-name=(kubectl get job -o jsonpath='{.items[0].metadata.name}')
+kubectl logs -f -l batch.kubernetes.io/job-name=$(kubectl get job -o jsonpath='{.items[0].metadata.name}')
 ```
 Modifiez maintenant le *hook* pour qu'il lance les migrations. Appuyez-vous sur l'*initContainer* de la première partie et n'oubliez pas les variables d'environnement !
 
